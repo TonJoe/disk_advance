@@ -1,13 +1,6 @@
-#define PI 3.14159265358979323846
-#include<stdio.h>
-#include<stdlib.h>
-#include<math.h>
-#include<complex>
-#include<iostream>
-#include<cstdlib>
-#include<time.h>
-#include<algorithm>
-#include<iostream>
+
+#include<Disk_Math.h>
+
 using namespace std;
 typedef complex<double> Cdouble;
 
@@ -29,6 +22,8 @@ public:
 	~Polynomial();
 	Polynomial operator+(const Polynomial & poly); //Polynomial addition.
 	Polynomial operator*(const Polynomial & poly);
+	
+	Polynomial Deriv();
 	Polynomial Deriv(int n);
 	//void operator=(const Polynomial & poly);
 	Cdouble Eval(Cdouble z);	//Evaluate the polynomial;
@@ -92,7 +87,7 @@ Polynomial Polynomial::operator+(const Polynomial & b)
     }  
     return c;  
 }  
-Polynomial Polynomial::Deriv(int n)
+Polynomial Polynomial::Deriv()	//Derivative
 {
 	Polynomial c;
 	//int aPos=0;
@@ -104,6 +99,41 @@ Polynomial Polynomial::Deriv(int n)
 		if(norm(coef)>0.0000001)
 		{
 			c.NewTerm(coef,this->termArray[bPos].exp-1);
+			bPos++;
+		}
+	}
+	return c;
+}
+
+Polynomial Polynomial::Deriv(int n)		//n'th order derivative
+{
+	Polynomial c;
+	//int aPos=0;
+	int bPos=0;
+	while(bPos<this->terms)
+	{
+		Cdouble bexp(this->termArray[bPos].exp,0.);
+		
+		if(this->termArray[bPos].exp>0)		//positive exponent
+		{
+			if(this->termArray[bPos].exp>=n)
+			{
+				double fact=Fact(this->termArray[bPos].exp,double(n));
+				Cdouble coef(fact,0.);
+				coef=coef*bexp;
+				if(norm(coef)>0.0000001)
+					c.NewTerm(coef,this->termArray[bPos].exp-n);
+				bPos++;
+			}
+			else	//Derivative order> exp, term 0. Next term
+				bPos++;			
+		}
+		else							//negative exponent
+		{
+			double fact=Fact(this->termArray[bPos].exp+double(n-1),double(n))*pow(-1.,n);
+			Cdouble coef(fact,0.);
+			coef=coef*bexp;
+			c.NewTerm(coef,this->termArray[bPos].exp-n);
 			bPos++;
 		}
 	}
