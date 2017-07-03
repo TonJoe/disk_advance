@@ -122,7 +122,7 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 			{
 				double fact=Fact(this->termArray[bPos].exp,double(n));
 				Cdouble coef(fact,0.);
-				coef=coef*bexp; cout<<coef<<endl;
+				coef=coef*this->termArray[bPos].coef;
 				if(norm(coef)>0.0000001)
 					c.NewTerm(coef,this->termArray[bPos].exp-n);
 				bPos++;
@@ -132,9 +132,9 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 		}
 		else							//negative exponent
 		{
-			double fact=Fact(this->termArray[bPos].exp+double(n-1),double(n))*pow(-1.,n);
+			double fact=Fact(abs(this->termArray[bPos].exp)+double(n-1),double(n))*pow(-1.,n);
 			Cdouble coef(fact,0.);
-			coef=coef*bexp;
+			coef=coef*this->termArray[bPos].coef;
 			c.NewTerm(coef,this->termArray[bPos].exp-n);
 			bPos++;
 		}
@@ -179,7 +179,7 @@ void Polynomial::InsertTerm(const Term & term)
     }  
     if(term.exp == termArray[i].exp){  
         termArray[i].coef += term.coef;  
-        if(termArray[i].coef!=polar(0.,0.)){  
+        if(termArray[i].coef==polar(0.,0.)){  
             for(int j=i; j<terms-1; j++)  
                 termArray[j]= termArray[j+1];  
             terms--;  

@@ -21,12 +21,12 @@ void test()
 	Polynomial p2(p1);
 	cout<<p1<<endl;
 	//cout<<p1.Deriv()<<endl;
-	cout<<p1.Deriv();
+	cout<<p1.Deriv(1)<<endl;
+	cout<<p1.Deriv(2)<<endl;
 }  
 
 int main()
 {
 	test();
-	cout<<Fact(4,2)<<endl;
 	system("Pause");
 }
