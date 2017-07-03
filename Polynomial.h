@@ -95,12 +95,14 @@ Polynomial Polynomial::Deriv()	//Derivative
 	while(bPos<this->terms)
 	{
 		Cdouble bexp(this->termArray[bPos].exp,0);
-		Cdouble coef(this->termArray[bPos].coef*bexp);
+		Cdouble coef(this->termArray[bPos].coef*bexp); cout<<coef<<norm(coef)<<"  ";
 		if(norm(coef)>0.0000001)
 		{
 			c.NewTerm(coef,this->termArray[bPos].exp-1);
-			bPos++;
+			cout<<"A new term created";
+			cout<<c<<endl;
 		}
+		bPos++;
 	}
 	return c;
 }
@@ -120,7 +122,7 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 			{
 				double fact=Fact(this->termArray[bPos].exp,double(n));
 				Cdouble coef(fact,0.);
-				coef=coef*bexp;
+				coef=coef*bexp; cout<<coef<<endl;
 				if(norm(coef)>0.0000001)
 					c.NewTerm(coef,this->termArray[bPos].exp-n);
 				bPos++;

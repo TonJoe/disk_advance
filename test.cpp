@@ -4,7 +4,7 @@ void test()
 {  
     Polynomial p1;  
 	Cdouble c=polar(1.,2.);
-    p1.NewTerm(c,2);  
+    p1.NewTerm(6.5,2);  
 	p1.NewTerm(2,3);
 	p1.NewTerm(3,1);
 	p1.NewTerm(4,-1);
@@ -20,13 +20,13 @@ void test()
     //cout<<"("<<p1<<") * ("<<p2<<") = "<<p1 * p2<<endl;
 	Polynomial p2(p1);
 	cout<<p1<<endl;
-	cout<<p1.Deriv()<<endl;
-	cout<<p1.Deriv(1)<<endl;
-	cout<<p1.Deriv(2)<<endl;
+	//cout<<p1.Deriv()<<endl;
+	cout<<p1.Deriv();
 }  
 
 int main()
 {
 	test();
+	cout<<Fact(4,2)<<endl;
 	system("Pause");
 }

@@ -27,16 +27,16 @@ double Fact(double n)					//Factorial, invalid for n>30, for it leaks out.
 	
 	return s;
 }
-double Fact(double n, double l)		//overloading Factorial n(n-1)...(n-l+1)
+double Fact(double n, int l)		//overloading Factorial n(n-1)...(n-l+1)
 {
 	double s=1;
 	if((double)(n)<0.01&&(double)(n)>-0.01||l==0.)
 		return 1.;
 	if(n<0.0||n<l)
 		return 0.;
-	for(double i=0;i<l;i=i+1.0)
+	for(int i=0;i<l;i=i+1)
 	{
-		s=s*(n-i);
+		s=s*(double)(n-i);
 	}
 	
 	return s;
