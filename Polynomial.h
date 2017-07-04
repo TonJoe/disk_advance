@@ -1,5 +1,6 @@
 
 #include<Disk_Math.h>
+#include<Monca.h>
 
 using namespace std;
 typedef complex<double> Cdouble;
@@ -15,23 +16,26 @@ public:
 class Polynomial
 {
 	friend ostream & operator<<(ostream &o,const Polynomial & poly);
+	friend Monca;
 	//friend Polynomial Der(const Polynomial & poly, int n);
 public:
 	Polynomial();
 	Polynomial(const Polynomial & poly);
 	~Polynomial();
+	Polynomial& operator=(const Polynomial & poly);
 	Polynomial operator+(const Polynomial & poly); //Polynomial addition.
 	Polynomial operator*(const Polynomial & poly);
 	
+	void Clear1();
 	Polynomial Deriv();
 	Polynomial Deriv(int n);
 	void Jas(Cdouble* z, int length, int i);	//This is the methodd to construct a Jas factor from a series of coordinates z*, length 'length', the center coordinate z_i. J_i=\sum(z_i-z_k),k!=j
 	//void operator=(const Polynomial & poly);
 	Cdouble Eval(Cdouble z);	//Evaluate the polynomial;
 	void NewTerm(Cdouble coef, int exp);
-private:
+protected:
 	void InsertTerm(const Term & term);
-private:
+protected:
 	Term *termArray;	//Term Array
 	int capacity;		//Capacity of the polynomial
 	int terms;			//Number of Non-zero terms
@@ -59,6 +63,35 @@ Polynomial::~Polynomial()
 {  
     delete [] termArray;  
 }  
+void Polynomial::Clear1()
+{
+	if(termArray!=NULL)
+	{	
+		delete [] termArray;
+	}
+	this->terms=0;
+	this->capacity=10;
+	this->termArray = new Term[capacity];
+	Cdouble c(1.,0.);
+	this->NewTerm(c,0);	
+}
+
+Polynomial& Polynomial::operator=(const Polynomial & poly)
+{
+	if(termArray!=NULL)
+	{
+		delete [] termArray;
+	}
+	this->capacity=poly.capacity;
+	this->terms=poly.terms;
+	this->termArray = new Term[this->capacity];
+	for(int i=0;i<terms;i++)
+	{
+		this->termArray[i].coef=poly.termArray[i].coef;
+		this->termArray[i].exp=poly.termArray[i].exp;
+	}
+	return *this;
+}
 
 Polynomial Polynomial::operator+(const Polynomial & b)  
 {  
@@ -151,6 +184,7 @@ void Jas(Cdouble* z, int length, int i)
 		if(n!=i)
 		{
 			Polynomial c;
+			c.Clear1();
 			c.NewTerm(coef,1);
 			c.NewTerm(-z[n],0);
 		}
@@ -175,7 +209,7 @@ Polynomial Polynomial::operator*(const Polynomial & b)
 }**/
 void Polynomial::NewTerm(Cdouble coef, int exp)  
 {  
-    if(terms == capacity){  
+    if(terms >= capacity){  
         capacity *= 2;  
         Term *tmp = new Term[capacity];  
         copy(termArray,termArray+terms,tmp);  

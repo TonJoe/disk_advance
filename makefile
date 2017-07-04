@@ -1,4 +1,4 @@
-all: Disk_Math.h Polynomial.h test.cpp
-	g++ Disk_Math.h Polynomial.h CF_Wave.h test.cpp -I .
+all: Disk_Math.h Polynomial.h test.cpp Monca.h
+	g++ Disk_Math.h Polynomial.h Monca.h test.cpp -I .
 clean:
 	
