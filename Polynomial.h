@@ -25,6 +25,7 @@ public:
 	
 	Polynomial Deriv();
 	Polynomial Deriv(int n);
+	void Jas(Cdouble* z, int length, int i);	//This is the methodd to construct a Jas factor from a series of coordinates z*, length 'length', the center coordinate z_i. J_i=\sum(z_i-z_k),k!=j
 	//void operator=(const Polynomial & poly);
 	Cdouble Eval(Cdouble z);	//Evaluate the polynomial;
 	void NewTerm(Cdouble coef, int exp);
@@ -142,6 +143,19 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 	return c;
 }
 
+void Jas(Cdouble* z, int length, int i)
+{
+	Cdouble coef(1.,0);
+	for(int n=0;n<length;n++)
+	{
+		if(n!=i)
+		{
+			Polynomial c;
+			c.NewTerm(coef,1);
+			c.NewTerm(-z[n],0);
+		}
+	}
+}
 Polynomial Polynomial::operator*(const Polynomial & b)  
 {  
     Polynomial c;  
