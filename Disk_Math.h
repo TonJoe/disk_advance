@@ -15,12 +15,12 @@ using namespace std;
 
 double Fact(double n)					//Factorial, invalid for n>30, for it leaks out.
 {
-	double s=1;
-	if((double)(n)<0.01&&(double)(n)>-0.01)
+	double s=1.;
+	if(n==0.0)
 		return 1.;
 	if(n<0.0)
 		return 0.;
-	for(double i=n;i>0;i=i-1.0)
+	for(double i=n;i>0.;i=i-1.0)
 	{
 		s=s*i;
 	}
@@ -57,4 +57,8 @@ double C(double up, double low)			//Number of combinations
 	multi=multi/Fact(low);
 	return multi;
 	
+}
+double Nm(int n, int m) //Normalization factor
+{
+        return pow(-1.,n)*sqrt(Fact(double(n))/(2.*PI*pow(2,m)*Fact(double(n+m))));
 }

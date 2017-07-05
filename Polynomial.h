@@ -1,10 +1,9 @@
 
 #include<Disk_Math.h>
-#include<Monca.h>
 
 using namespace std;
 typedef complex<double> Cdouble;
-
+class Monca;
 class Polynomial;
 class Term	//Term in a polynomial.
 {
@@ -27,6 +26,7 @@ public:
 	Polynomial operator*(const Polynomial & poly);
 	
 	void Clear1();
+	void Clear0();
 	Polynomial Deriv();
 	Polynomial Deriv(int n);
 	void Jas(Cdouble* z, int length, int i);	//This is the methodd to construct a Jas factor from a series of coordinates z*, length 'length', the center coordinate z_i. J_i=\sum(z_i-z_k),k!=j
@@ -41,10 +41,10 @@ protected:
 	int terms;			//Number of Non-zero terms
 };
 
-Polynomial::Polynomial()	//Initializaing a polynomial with 10 terms.
+Polynomial::Polynomial()	//Initializaing a polynomial with 5 terms.
 {
 	this->terms=0;
-	this->capacity=10;
+	this->capacity=5;
 	termArray= new Term[this->capacity];
 }
 
@@ -65,14 +65,26 @@ Polynomial::~Polynomial()
 }  
 void Polynomial::Clear1()
 {
-	if(termArray!=NULL)
-	{	
-		delete [] termArray;
-	}
+	//if(termArray!=NULL)
+		
+	delete [] termArray;
+	
 	this->terms=0;
-	this->capacity=10;
+	this->capacity=5;
 	this->termArray = new Term[capacity];
 	Cdouble c(1.,0.);
+	this->NewTerm(c,0);	
+}
+void Polynomial::Clear0()
+{
+	//if(termArray!=NULL)
+		
+	delete [] termArray;
+	
+	this->terms=0;
+	this->capacity=5;
+	this->termArray = new Term[capacity];
+	Cdouble c(0.,0.);
 	this->NewTerm(c,0);	
 }
 
@@ -176,7 +188,7 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 	return c;
 }
 
-void Jas(Cdouble* z, int length, int i)
+void Polynomial::Jas(Cdouble* z, int length, int i)
 {
 	Cdouble coef(1.,0);
 	for(int n=0;n<length;n++)
@@ -187,6 +199,7 @@ void Jas(Cdouble* z, int length, int i)
 			c.Clear1();
 			c.NewTerm(coef,1);
 			c.NewTerm(-z[n],0);
+			(*this)=(*this)*c;
 		}
 	}
 }
