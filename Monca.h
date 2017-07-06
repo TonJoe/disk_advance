@@ -84,6 +84,9 @@ void Monca::Metrop(int N_p, int N, int P, int steps)
 			r[j]=z[j];
 		}		
 		r[st%n_p]=r[st%n_p]+polar((double(rand())/double(RAND_MAX))*0.2*RN,(double(rand())/double(RAND_MAX))*2.*PI);
-		if(norm(CF_Wave[r]/CF_Wave[z])>1.)
+		if(norm(CF_Wave[r]/CF_Wave[z])>(double(rand())/double(RAND_MAX)))
+		{
+			z[st%n_p]=r[st%n_p];
+		}
 	}
 }
