@@ -9,6 +9,7 @@
 #include<time.h>
 #include<algorithm>
 #include<iostream>
+#include"LAcomplex.h"
 
 using namespace std;  
 

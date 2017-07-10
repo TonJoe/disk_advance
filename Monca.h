@@ -1,5 +1,5 @@
 #include<Polynomial.h>
-
+/**
 class Monca
 {
 public:
@@ -86,4 +86,4 @@ void Monca::Metrop(int N_p, int N, int P, int steps)
 		r[st%n_p]=r[st%n_p]+polar((double(rand())/double(RAND_MAX))*0.2*RN,(double(rand())/double(RAND_MAX))*2.*PI);
 		if(norm(CF_Wave[r]/CF_Wave[z])>1.)
 	}
-}
+}**/
