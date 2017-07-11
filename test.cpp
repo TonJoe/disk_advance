@@ -1,5 +1,8 @@
-#include<Polynomial.h>
+//#include <Polynomial.h>
+#include "Polynomial.h"
+#include "LA1.h"
 
+using namespace std;
 void test()  
 {  
     Polynomial p1;  

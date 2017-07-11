@@ -9,7 +9,7 @@
 #include<time.h>
 #include<algorithm>
 #include<iostream>
-#include"LAcomplex.h"
+//#include"LAcomplex.h"
 
 using namespace std;  
 
@@ -63,3 +63,4 @@ double Nm(int n, int m) //Normalization factor
 {
         return pow(-1.,n)*sqrt(Fact(double(n))/(2.*PI*pow(2,m)*Fact(double(n+m))));
 }
+

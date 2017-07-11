@@ -2,7 +2,7 @@
 
 #define NR_END 1
 #define LOG2 0.693147180559945
-#include <complex.h>
+#include <complex>
 #include <math.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -24,12 +24,12 @@ void nrerror(char error_text[])
 }
 
 
-void cpxdbl_ludcmp0(double complex **a,int n,double *d)
+void cpxdbl_ludcmp0(complex<double> **a,int n,double *d)
 {
 	double veevee[n+1];
 	int i,imax,j,k;
 	double big,dum,temp;
-	double complex sum,dum2;
+	complex<double> sum,dum2;
 
   *d=1.0;
   for(i=0;i<n;i++)
@@ -82,12 +82,12 @@ void cpxdbl_ludcmp0(double complex **a,int n,double *d)
 }
 
 
-void cpxdbl_ludcmp1(double complex **a,int n,double *d)
+void cpxdbl_ludcmp1(complex<double> **a,int n,double *d)
 {
 	double veevee[n+1];
 	int i,imax,j,k;
 	double big,dum,temp;
-	double complex sum,dum2;
+	complex<double> sum,dum2;
 
   *d=1.0;
   for(i=1;i<=n;i++)
@@ -142,11 +142,11 @@ void cpxdbl_ludcmp1(double complex **a,int n,double *d)
   }
 }
 
-double complex cpxdbl_det0(double complex **a,int n)
+complex<double> cpxdbl_det0(complex<double> **a,int n)
 {
   int i;
   double d;
-  double complex det;
+  complex<double> det;
 
   cpxdbl_ludcmp0(a,n,&d);
   det=d;
@@ -156,11 +156,11 @@ double complex cpxdbl_det0(double complex **a,int n)
 return det;
 }
 
-double complex cpxdbl_det1(double complex **a,int n)
+complex<double> cpxdbl_det1(complex<double> **a,int n)
 {
   int i;
   double d;
-  double complex det;
+  complex<double> det;
 
   cpxdbl_ludcmp1(a,n,&d);
   det=d;
@@ -180,11 +180,11 @@ double  *dvector(int nl,int nh)
   return v-nl+NR_END;
 }
 
-long double  *ldvector(int nl,int nh)
-/* allocate a long double vector with subscript range v[nl..nh] */
+ double  *ldvector(int nl,int nh)
+/* allocate a  double vector with subscript range v[nl..nh] */
 {
-  long double *v;
-  v=(long double *)malloc((size_t) ((nh-nl+1+NR_END)*sizeof(long double)));
+   double *v;
+  v=( double *)malloc((size_t) ((nh-nl+1+NR_END)*sizeof( double)));
   if(!v) nrerror("allocation failure in ldvector()");
   return v-nl+NR_END;
 }
@@ -198,11 +198,11 @@ int  *ivector(int nl,int nh)
   return v-nl+NR_END;
 }
 
-long  *lvector(int nl,int nh)
-/* allocate a long vector with subscript range v[nl..nh] */
+  *lvector(int nl,int nh)
+/* allocate a  vector with subscript range v[nl..nh] */
 {
-  long *v;
-  v=(long *)malloc((size_t) ((nh-nl+1+NR_END)*sizeof(long)));
+   *v;
+  v=( *)malloc((size_t) ((nh-nl+1+NR_END)*sizeof()));
   if(!v) nrerror("allocation failure in lvector()");
   return v-nl+NR_END;
 }
@@ -272,19 +272,19 @@ void free_dtensor(double ***t,int nrl,int nrh,int ncl,int nch,int ndl,int ndh)
 }
 
 
-long double **ldmatrix(int nrl,int nrh,int ncl,int nch)
+ double **ldmatrix(int nrl,int nrh,int ncl,int nch)
 {
   int i,nrow=nrh-nrl+1,ncol=nch-ncl+1;
-  long double **m;
+   double **m;
 
   /*allocate pointers to rows */
-  m=(long double **) malloc((size_t)((nrow+NR_END)*sizeof(long double*)));
+  m=( double **) malloc((size_t)((nrow+NR_END)*sizeof( double*)));
   if (!m) nrerror("allocation failure 1 in dmatrix()");
   m +=NR_END;
   m -= nrl;
   
   /*allocate rows and set pointers to them */
-  m[nrl]=(long double *)malloc((size_t)((nrow*ncol+NR_END)*sizeof(long double)));
+  m[nrl]=( double *)malloc((size_t)((nrow*ncol+NR_END)*sizeof( double)));
   if (!m[nrl])    nrerror("allocation failure 2 in dmatrix()");
   m[nrl] +=NR_END;
   m[nrl] -= ncl;
@@ -356,19 +356,19 @@ int8_t **i8matrix(int nrl,int nrh,int ncl,int nch)
 }
 
 
-double complex **cmatrix(int nrl,int nrh,int ncl,int nch)
+complex<double> **cmatrix(int nrl,int nrh,int ncl,int nch)
 {
   int i,nrow=nrh-nrl+1,ncol=nch-ncl+1;
-  double complex **m;
+  complex<double> **m;
 
   /*allocate pointers to rows */
-  m=(double complex **) malloc((size_t)((nrow+NR_END)*sizeof(double complex *)));
+  m=(complex<double> **) malloc((size_t)((nrow+NR_END)*sizeof(complex<double> *)));
   if (!m) nrerror("allocation failure 1 in cmatrix()");
   m +=NR_END;
   m -= nrl;
   
   /*allocate rows and set pointers to them */
-  m[nrl]=(double complex *)malloc((size_t)((nrow*ncol+NR_END)*sizeof(double complex)));
+  m[nrl]=(complex<double> *)malloc((size_t)((nrow*ncol+NR_END)*sizeof(complex<double>)));
   if (!m[nrl])    nrerror("allocation failure 2 in dmatrix()");
   m[nrl] +=NR_END;
   m[nrl] -= ncl;
@@ -379,22 +379,22 @@ double complex **cmatrix(int nrl,int nrh,int ncl,int nch)
   return m;
 }
 
-double complex ***ctensor(int nrl,int nrh,int ncl,int nch,int ndl,int ndh)
+complex<double> ***ctensor(int nrl,int nrh,int ncl,int nch,int ndl,int ndh)
 {
     int i,j,nrow=nrh-nrl+1,ncol=nch-ncl+1,ndep=ndh-ndl+1;
-    double complex ***t;
+    complex<double> ***t;
 
-    t=(double complex ***) malloc((size_t)((nrow+NR_END)*sizeof(double complex**)));
+    t=(complex<double> ***) malloc((size_t)((nrow+NR_END)*sizeof(complex<double>**)));
     if(!t)    nrerror("allocation failure 1 in cpx_tensor()");
     t+=NR_END;
     t-=nrl;
 
-    t[nrl]=(double complex **) malloc((size_t)((nrow*ncol+NR_END)*sizeof(double complex*)));
+    t[nrl]=(complex<double> **) malloc((size_t)((nrow*ncol+NR_END)*sizeof(complex<double>*)));
     if(!t[nrl])   nrerror("allocation failure 2 in cpx_tensor()");
     t[nrl]+=NR_END;
     t[nrl]-=ncl;
 
-    t[nrl][ncl]=(double complex *) malloc((size_t)((nrow*ncol*ndep+NR_END)*sizeof(double complex)));
+    t[nrl][ncl]=(complex<double> *) malloc((size_t)((nrow*ncol*ndep+NR_END)*sizeof(complex<double>)));
     if(!t[nrl][ncl])    nrerror("allocation failure 3 in the cpx_tensor()");
     t[nrl][ncl] += NR_END;
     t[nrl][ncl] -= ndl;
@@ -412,7 +412,7 @@ double complex ***ctensor(int nrl,int nrh,int ncl,int nch,int ndl,int ndh)
     return t;
 }
 
-void free_ctensor(double complex ***t,int nrl,int nrh,int ncl,int nch,int ndl,int ndh)
+void free_ctensor(complex<double> ***t,int nrl,int nrh,int ncl,int nch,int ndl,int ndh)
 {
     free((FREE_ARG) (t[nrl][ncl]+ndl-NR_END));
     free((FREE_ARG) (t[nrl]+ncl-NR_END));
@@ -420,19 +420,19 @@ void free_ctensor(double complex ***t,int nrl,int nrh,int ncl,int nch,int ndl,in
 }
 
 
-long double complex **lcmatrix(int nrl,int nrh,int ncl,int nch)
+ complex<double> **lcmatrix(int nrl,int nrh,int ncl,int nch)
 {
   int i,nrow=nrh-nrl+1,ncol=nch-ncl+1;
-  long double complex **m;
+   complex<double> **m;
 
   /*allocate pointers to rows */
-  m=(long double complex **) malloc((size_t)((nrow+NR_END)*sizeof(long double complex *)));
+  m=( complex<double> **) malloc((size_t)((nrow+NR_END)*sizeof( complex<double> *)));
   if (!m) nrerror("allocation failure 1 in cmatrix()");
   m +=NR_END;
   m -= nrl;
   
   /*allocate rows and set pointers to them */
-  m[nrl]=(long double complex *)malloc((size_t)((nrow*ncol+NR_END)*sizeof(long double complex)));
+  m[nrl]=( complex<double> *)malloc((size_t)((nrow*ncol+NR_END)*sizeof( complex<double>)));
   if (!m[nrl])    nrerror("allocation failure 2 in dmatrix()");
   m[nrl] +=NR_END;
   m[nrl] -= ncl;
@@ -489,18 +489,18 @@ short int **simatrix(int nrl,int nrh,int ncl,int nch)
   return m;
 }
 
-double complex *cvector(int nl,int nh)
+complex<double> *cvector(int nl,int nh)
 {
-  double complex *v;
-  v=(double complex*)malloc((size_t) ((nh-nl+1+NR_END)*sizeof(double complex)));
+  complex<double> *v;
+  v=(complex<double>*)malloc((size_t) ((nh-nl+1+NR_END)*sizeof(complex<double>)));
   if(!v) nrerror("allocation failure in cvector()");
   return v-nl+NR_END;
 }
 
-long double complex *lcvector(int nl,int nh)
+ complex<double> *lcvector(int nl,int nh)
 {
-  long double complex *v;
-  v=(long double complex*)malloc((size_t) ((nh-nl+1+NR_END)*sizeof(long double complex)));
+   complex<double> *v;
+  v=( complex<double>*)malloc((size_t) ((nh-nl+1+NR_END)*sizeof( complex<double>)));
   if(!v) nrerror("allocation failure in cvector()");
   return v-nl+NR_END;
 }
@@ -588,21 +588,21 @@ void free_dmatrix(double **m,int nrl,int nrh,int ncl,int nch)
   free((FREE_ARG) (m+nrl-NR_END));
 }
 
-void free_ldmatrix(long double **m,int nrl,int nrh,int ncl,int nch)
+void free_ldmatrix( double **m,int nrl,int nrh,int ncl,int nch)
 /* free a double matrix allocated by matrix() */
 {
   free((FREE_ARG) (m[nrl]+ncl-NR_END));
   free((FREE_ARG) (m+nrl-NR_END));
 }
 
-void free_cmatrix(double complex **m,int nrl,int nrh,int ncl,int nch)
+void free_cmatrix(complex<double> **m,int nrl,int nrh,int ncl,int nch)
 /* free a double matrix allocated by matrix() */
 {
   free((FREE_ARG) (m[nrl]+ncl-NR_END));
   free((FREE_ARG) (m+nrl-NR_END));
 }
 
-void free_lcmatrix(long double complex **m,int nrl,int nrh,int ncl,int nch)
+void free_lcmatrix( complex<double> **m,int nrl,int nrh,int ncl,int nch)
 /* free a double matrix allocated by matrix() */
 {
   free((FREE_ARG) (m[nrl]+ncl-NR_END));
@@ -640,61 +640,61 @@ void free_fmatrix(float **m,int nrl,int nrh,int ncl,int nch)
 }
 
 void free_dvector(double *v,int nl,int nh)
-/* free a long double vector allocated with ldvector() */
+/* free a  double vector allocated with ldvector() */
 {
   free((FREE_ARG) (v+nl-NR_END));
 }
 
-void free_ldvector(long double *v,int nl,int nh)
-/* free a long double vector allocated with ldvector() */
+void free_ldvector( double *v,int nl,int nh)
+/* free a  double vector allocated with ldvector() */
 {
   free((FREE_ARG) (v+nl-NR_END));
 }
 
-void free_cvector(double complex *v,int nl,int nh)
-/* free a long double vector allocated with ldvector() */
+void free_cvector(complex<double> *v,int nl,int nh)
+/* free a  double vector allocated with ldvector() */
 {
   free((FREE_ARG) (v+nl-NR_END));
 }
 
-void free_lcvector(long double complex *v,int nl,int nh)
-/* free a long double vector allocated with ldvector() */
+void free_lcvector( complex<double> *v,int nl,int nh)
+/* free a  double vector allocated with ldvector() */
 {
   free((FREE_ARG) (v+nl-NR_END));
 }
 
 
 void free_ivector(int *v,int nl,int nh)
-/* free a long double vector allocated with ldvector() */
+/* free a  double vector allocated with ldvector() */
 {
   free((FREE_ARG) (v+nl-NR_END));
 }
 
 void free_sivector(short int *v,int nl,int nh)
-/* free a long double vector allocated with ldvector() */
+/* free a  double vector allocated with ldvector() */
 {
   free((FREE_ARG) (v+nl-NR_END));
 }
 
 
 void free_suivector(short unsigned int *v,int nl,int nh)
-/* free a long double vector allocated with ldvector() */
+/* free a  double vector allocated with ldvector() */
 {
   free((FREE_ARG) (v+nl-NR_END));
 }
 
 void free_fvector(float *v,int nl,int nh)
-/* free a long double vector allocated with ldvector() */
+/* free a  double vector allocated with ldvector() */
 {
   free((FREE_ARG) (v+nl-NR_END));
 }
 
-void cpxl_ludcmp(long double complex **a,int n,int *indx,long double *d)
+void cpxl_ludcmp( complex<double> **a,int n,int *indx, double *d)
 {
-	long double veevee[n+1];
+	 double veevee[n+1];
 	int i,imax,j,k;
-	long double big,dum,temp;
-	long double complex sum,dum2;
+	 double big,dum,temp;
+	 complex<double> sum,dum2;
 
   *d=1.0L;
   for(i=1;i<=n;i++)
@@ -748,9 +748,9 @@ void cpxl_ludcmp(long double complex **a,int n,int *indx,long double *d)
     }
   }
 }
-void cpxl_lubksb(long double complex **a,int n,int *indx,long double complex b[])
+void cpxl_lubksb( complex<double> **a,int n,int *indx, complex<double> b[])
 {
-    long double complex sum;
+     complex<double> sum;
     int i,ii=0,ip,j;
     
     for(i=1;i<=n;i++)
@@ -771,10 +771,10 @@ void cpxl_lubksb(long double complex **a,int n,int *indx,long double complex b[]
         b[i]=sum/a[i][i];
     }
 }
-void inv_cpxl_matrix(long double complex **a,long double complex **inv_a,int n,long double complex *determinant)
+void inv_cpxl_matrix( complex<double> **a, complex<double> **inv_a,int n, complex<double> *determinant)
 {
-    long double complex  *col,det;
-    long double d;
+     complex<double>  *col,det;
+     double d;
     int i,j,*indx;
 
     indx=ivector(1,n);col=lcvector(1,n);
@@ -798,12 +798,12 @@ void inv_cpxl_matrix(long double complex **a,long double complex **inv_a,int n,l
 
 
 
-void cpx_ludcmp(double complex **a,int n,int *indx,double *d)
+void cpx_ludcmp(complex<double> **a,int n,int *indx,double *d)
 {
 	double veevee[n+1];
 	int i,imax,j,k;
 	double big,dum,temp;
-	double complex sum,dum2;
+	complex<double> sum,dum2;
 
   *d=1.0;
   for(i=1;i<=n;i++)
@@ -857,9 +857,9 @@ void cpx_ludcmp(double complex **a,int n,int *indx,double *d)
     }
   }
 }
-void cpx_lubksb(double complex **a,int n,int *indx,double complex b[])
+void cpx_lubksb(complex<double> **a,int n,int *indx,complex<double> b[])
 {
-    double complex sum;
+    complex<double> sum;
     int i,ii=0,ip,j;
     
     for(i=1;i<=n;i++)
@@ -880,9 +880,9 @@ void cpx_lubksb(double complex **a,int n,int *indx,double complex b[])
         b[i]=sum/a[i][i];
     }
 }
-void inv_cpx_matrix(double complex **a,double complex **inv_a,int n,double complex *determinant)
+void inv_cpx_matrix(complex<double> **a,complex<double> **inv_a,int n,complex<double> *determinant)
 {
-    double complex  *col,det;
+    complex<double>  *col,det;
     double d;
     int i,j,*indx;
 
@@ -1000,9 +1000,9 @@ void DGEMV(int dima,int dimb, double **A, double *b, double *out)
 	}
 }
 
-void DspMV(long int nnz, int dimout, int **indx, double *A, double *b, double *out)
+void DspMV( int nnz, int dimout, int **indx, double *A, double *b, double *out)
 {
-	long int i1;
+	 int i1;
 	for(i1=1;i1<=dimout;i1++)
 	{
 		out[i1]=0;
@@ -1026,9 +1026,9 @@ void DGEVM_SELF(int dima,int dimb, double **A, double *b)
 
 
 
-double complex CDOT(int n,double complex *cx, double complex *cy)
+complex<double> CDOT(int n,complex<double> *cx, complex<double> *cy)
 {
-	double complex dotprod=0;
+	complex<double> dotprod=0;
 	int i, m;
 	m = n % 5;
 	if ( m != 0 ) {
@@ -1042,9 +1042,9 @@ double complex CDOT(int n,double complex *cx, double complex *cy)
 	return dotprod;
 }
 
-double complex CDOTD(int n,double complex *cx, double *dy)
+complex<double> CDOTD(int n,complex<double> *cx, double *dy)
 {
-	double complex dotprod=0;
+	complex<double> dotprod=0;
 	int i, m;
 	m = n % 5;
 	if ( m != 0 ) {
@@ -1059,7 +1059,7 @@ double complex CDOTD(int n,double complex *cx, double *dy)
 }
 
 
-void CAX(int n, double complex ca, double complex *cx,double complex *cy)
+void CAX(int n, complex<double> ca, complex<double> *cx,complex<double> *cy)
 {
 	int ix, iy, i, m;
 	m = n % 4;
@@ -1085,7 +1085,7 @@ void CAX(int n, double complex ca, double complex *cx,double complex *cy)
 }
 
 
-void CAXPY(int n,double complex ca,double complex *cx,double complex *cy)
+void CAXPY(int n,complex<double> ca,complex<double> *cx,complex<double> *cy)
 {
 	//dy=dy+sa*dx
 	int ix, iy, i, m;
@@ -1109,7 +1109,7 @@ void CAXPY(int n,double complex ca,double complex *cx,double complex *cy)
 	return;
 }
 
-void CADXPCY(int n,double complex ca,double *dx,double complex *cy)
+void CADXPCY(int n,complex<double> ca,double *dx,complex<double> *cy)
 {
 	//dy=dy+sa*dx
 	int ix, iy, i, m;
@@ -1133,7 +1133,7 @@ void CADXPCY(int n,double complex ca,double *dx,double complex *cy)
 	return;
 }
 
-void CGEVM(int cima,int cimb, double complex **cA, double complex *cx, double complex *cy)
+void CGEVM(int cima,int cimb, complex<double> **cA, complex<double> *cx, complex<double> *cy)
 {
 	int i1;
 	for(i1=1;i1<=cima;i1++)
@@ -1146,7 +1146,7 @@ void CGEVM(int cima,int cimb, double complex **cA, double complex *cx, double co
 	}
 }
 
-void GEDMCV(int dima,int cimb, double **dA, double complex *cx, double complex *cy)
+void GEDMCV(int dima,int cimb, double **dA, complex<double> *cx, complex<double> *cy)
 {
 	int i1;
 	for(i1=1;i1<=dima;i1++)
@@ -1155,7 +1155,7 @@ void GEDMCV(int dima,int cimb, double **dA, double complex *cx, double complex *
 	}
 }
 
-void CGEMV_SELF(int cima,int cimb, double complex **cA, double complex *cx)
+void CGEMV_SELF(int cima,int cimb, complex<double> **cA, complex<double> *cx)
 {
 	int i1;
 	CAX(cima,cx[1],cA[1],cA[1]);
@@ -1288,9 +1288,9 @@ int BISEARCH_REV(int sizA, int siza, short int **A, short int *a)
 }
 
 
-long int LBISEARCH_UINT8(long int sizA, int siza, uint8_t **A, uint8_t *a)
+ int LBISEARCH_UINT8( int sizA, int siza, uint8_t **A, uint8_t *a)
 {
-	long int i1,i2,Max,current,lo=1,hi=sizA;
+	 int i1,i2,Max,current,lo=1,hi=sizA;
 	if(sizA==0) return 0;
 
 	for(i2=1;i2<=siza;i2++)
@@ -1343,9 +1343,9 @@ long int LBISEARCH_UINT8(long int sizA, int siza, uint8_t **A, uint8_t *a)
 	return 0;
 }
 
-long int LBISEARCH_UINT8_REV(long int sizA, int siza, uint8_t **A, uint8_t *a)
+ int LBISEARCH_UINT8_REV( int sizA, int siza, uint8_t **A, uint8_t *a)
 {
-	long int i1,i2,Max,current,lo=1,hi=sizA;
+	 int i1,i2,Max,current,lo=1,hi=sizA;
 	if(sizA==0) return 0;
 
 	for(i2=1;i2<=siza;i2++)
@@ -1514,9 +1514,9 @@ void FLIPLR_UINT8(int n,uint8_t *a)
 	}
 }
 
-void FLIPUD_UINT8(long int dim,int n,uint8_t **a)
+void FLIPUD_UINT8( int dim,int n,uint8_t **a)
 {
-	unsigned long int i1,m;
+	unsigned  int i1,m;
 	short int i2,sw;
 	if(dim%2==0)
 	{
@@ -1656,7 +1656,7 @@ double CLBGRD_FACT(double *fact,float j1,float j2, float m1, float m2, float j, 
 		return 0;
 	}
 	int i1,k,Mloop,mloop,i2;
-	long double d1,d2,signchoice,a[7],b[7],d3;
+	 double d1,d2,signchoice,a[7],b[7],d3;
 	if( ( ( ( j1+j2-(int)(j1+j2+0.1) ) - ( j-(int)(j+0.1) ) ) != 0  ) || ( (j1+m1-(int)(j1+m1+0.1))!=0 ) || ( (j2+m2-(int)(j2+m2+0.1))!=0 ))
 	{
 //	printf("%f %f\n",( j1+j2-(int)(j1+j2+0.1) ),( j-(int)(j+0.1) ));
@@ -1737,7 +1737,7 @@ double CLBGRD_LFACT(double *lfact,float j1,float j2, float m1, float m2, float j
 		return 0;
 	}
 	int i1,k,Mloop,mloop,i2;
-	long double d1,d2,signchoice,a[7],b[7],d3;
+	 double d1,d2,signchoice,a[7],b[7],d3;
 	if( ( ( ( j1+j2-(int)(j1+j2+0.1) ) - ( j-(int)(j+0.1) ) ) != 0  ) || ( (j1+m1-(int)(j1+m1+0.1))!=0 ) || ( (j2+m2-(int)(j2+m2+0.1))!=0 ))
 	{
 //	printf("%f %f\n",( j1+j2-(int)(j1+j2+0.1) ),( j-(int)(j+0.1) ));
@@ -1875,9 +1875,9 @@ void CoulombPseudoPotential(int LL, int Q2, int MAXm, double *cpseudop)
 }
 
 
-void SORTLEXICOGRAPHIC_UINT8(long int dim, int n,uint8_t **A)
+void SORTLEXICOGRAPHIC_UINT8( int dim, int n,uint8_t **A)
 {
-	long int i1,i2,nsw,sw;
+	 int i1,i2,nsw,sw;
 	bool flag;
 	while (dim>0)
 	{
@@ -1914,9 +1914,9 @@ void SORTLEXICOGRAPHIC_UINT8(long int dim, int n,uint8_t **A)
 	}
 }
 
-void SORTLEXICOGRAPHIC_UINT8_SINGLE(long int dim, int n,uint8_t **A)
+void SORTLEXICOGRAPHIC_UINT8_SINGLE( int dim, int n,uint8_t **A)
 {
-	long int i1,i2,nsw,sw;
+	 int i1,i2,nsw,sw;
 	bool flag;
 
 	for(i1=dim-1;i1>=1;i1--)
@@ -1948,9 +1948,9 @@ void SORTLEXICOGRAPHIC_UINT8_SINGLE(long int dim, int n,uint8_t **A)
 	}
 }
 
-void SORTLEXICOGRAPHIC_UINT8_SINGLE_REV(long int dim, int n,uint8_t **A)
+void SORTLEXICOGRAPHIC_UINT8_SINGLE_REV( int dim, int n,uint8_t **A)
 {
-	long int i1,i2,nsw,sw;
+	 int i1,i2,nsw,sw;
 	bool flag;
 
 	for(i1=dim-1;i1>=1;i1--)
@@ -1985,9 +1985,9 @@ void SORTLEXICOGRAPHIC_UINT8_SINGLE_REV(long int dim, int n,uint8_t **A)
 
 
 //written in reverse order: bubble sort from lower end;
-void SORTLEXICOGRAPHIC_UINT8_REV(long int dim, int n,uint8_t **A)
+void SORTLEXICOGRAPHIC_UINT8_REV( int dim, int n,uint8_t **A)
 {
-	long int i1,i2,nsw,sw;
+	 int i1,i2,nsw,sw;
 	bool flag;
 	while (dim>0)
 	{
