@@ -5,7 +5,7 @@ double EllipticE(double x);
 class Monca
 {
 public:
-	Polynomial *LY;			//Landaul level
+	///Polynomial *LY;			//Landaul level
 	Polynomial *JAS;		//Jastrow Factor
 	Polynomial *ynm;		//Projected landau level function
 public:
@@ -13,6 +13,7 @@ public:
 	Monca(int N_p, int N, int P);
 	//~Monca();
 	
+	void DoJas();
 	void Build();
 	Cdouble CF_Wave(Cdouble *z);
 	double Metrop(int steps);
@@ -37,10 +38,46 @@ Monca::Monca(int N_p, int N, int P)
 	RN=sqrt(2.0*n_p/niu);
 	
 	z=new Cdouble[n_p];
-	LY=new Polynomial [n_p];
-	ynm=new Polynomial [n_p];
+	///LY=new Polynomial [n_p*n_p];
+	ynm=new Polynomial [n_p*n_p];
 	JAS=new Polynomial [n_p];
 }
+void Monca::DoJas()
+{
+	if(JAS==NULL)
+	{
+		cout<<"Void Jastrow."<<endl;
+		return;
+	}
+	delete [] ynm;
+	ynm=new Polynomial[n_p*n_p];
+	for(int i=0;i<n_p*n_p;i++)
+		ynm[i].Clear0();
+	int l=0,m=0,t=0;
+	int i,j;
+	for(i=0;i<n_p;i++)
+	{
+		for(j=0;j<n_p;j++,t++)
+		{
+			l=n*t/n_p;
+			m=t%n_p-l;
+			/**Now start calculate wave function**/
+			
+			for(int k=0;k<=n;k++)
+			{
+				double c;
+				c=pow(-1.,k)*C(l+m,l-k)/Fact(k);
+				Cdouble coef(c,0.);
+				Polynomial tmp;
+				tmp.Clear0();
+				tmp.NewTerm(coef,k+m);
+				ynm[i*n_p+j]=ynm[i*n_p+j]+(tmp*JAS[j]).Deriv(k);
+				
+			}
+		}
+	}
+}
+
 void Monca::Build()	//This gives single CF_wave_function.
 {
 	//JAS=new Polynomial[n_p];
@@ -54,24 +91,9 @@ void Monca::Build()	//This gives single CF_wave_function.
 		
 		cout<<JAS[i]<<endl;
 		
-		ynm[i].Clear0();
+		
 	}
-	int i=0;
-	for(int lvl=0;lvl<n;lvl++)
-	{
-		for(int m=-lvl;m<-lvl+n_p/n&&i<n_p;m++)
-		{
-			for(int k=0;k<lvl;k++)
-			{
-				Polynomial tmp1,tmp2;
-				Cdouble c1(double(k+m),0.), c2(pow(-1.,k)*C(lvl+m,lvl-k)/Fact(k),0.);
-				tmp1.NewTerm(c1,k+m);
-				tmp2.NewTerm(c2,0);
-				ynm[i]=ynm[i]+tmp2*(tmp1*JAS[i]).Deriv(k);
-			}
-			i++;
-		}
-	}
+	DoJas();
 }
 
 Cdouble Monca::CF_Wave(Cdouble *z)	//Calculate determinant of wave-funtion: many-body function
@@ -82,7 +104,7 @@ Cdouble Monca::CF_Wave(Cdouble *z)	//Calculate determinant of wave-funtion: many
 		for(int j=0;j<n_p;j++)	//j'th coordinate
 		{
 			//cout<<ynm[i]<<endl;
-			matrix[i*n_p+j]=ynm[i].Eval(z[j]);
+			matrix[i*n_p+j]=ynm[i*n_p+j].Eval(z[j]);
 		}
 	}
 	//return polar(1.,0.);

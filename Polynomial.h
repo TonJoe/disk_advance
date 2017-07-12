@@ -29,7 +29,8 @@ public:
 	void Clear0();
 	Polynomial Deriv();
 	Polynomial Deriv(int n);
-	void Jas(Cdouble* z, int length, int i);	//This is the methodd to construct a Jas factor from a series of coordinates z*, length 'length', the center coordinate z_i. J_i=\sum(z_i-z_k),k!=j
+	void Jas(Cdouble *z, int length, int i);	//This is the methodd to construct a Jas factor from a series of coordinates z*, length 'length', the center coordinate z_i. J_i=\sum(z_i-z_k),k!=j
+	
 	//void operator=(const Polynomial & poly);
 	Cdouble Eval(Cdouble z);	//Evaluate the polynomial;
 	void NewTerm(Cdouble coef, int exp);
@@ -104,51 +105,9 @@ void Polynomial::Clear0()
 	}
 }
 
-Polynomial& Polynomial::operator=(const Polynomial & poly)
-{
-	if(termArray!=NULL)
-	{
-		delete [] termArray;
-	}
-	this->capacity=poly.capacity;
-	this->terms=poly.terms;
-	this->termArray = new Term[this->capacity];
-	for(int i=0;i<terms;i++)
-	{
-		this->termArray[i].coef=poly.termArray[i].coef;
-		this->termArray[i].exp=poly.termArray[i].exp;
-	}
-	return *this;
-}
 
-Polynomial Polynomial::operator+(const Polynomial & b)  
-{  
-    Polynomial c;  
-    int aPos=0;  
-    int bPos=0;  
-    while(aPos<terms && bPos<b.terms){  
-        if(termArray[aPos].exp == b.termArray[bPos].exp){  
-            Cdouble coef=termArray[aPos].coef+b.termArray[bPos].coef;  
-            if(norm(coef)>0.00001)c.NewTerm(coef,termArray[aPos].exp);  
-            aPos++;bPos++;  
-        }else if(termArray[bPos].exp < b.termArray[bPos].exp){  
-            c.NewTerm(b.termArray[bPos].coef,b.termArray[bPos].exp);  
-            bPos++;  
-        }else{  
-            c.NewTerm(termArray[aPos].coef,termArray[aPos].exp);  
-            aPos++;  
-        }  
-    }  
-    while (aPos < terms){  
-        c.NewTerm(termArray[aPos].coef,termArray[aPos].exp);  
-        aPos++;  
-    }  
-    while (bPos < b.terms){  
-        c.NewTerm(b.termArray[bPos].coef,b.termArray[bPos].exp);  
-        bPos++;  
-    }  
-    return c;  
-}  
+
+
 Polynomial Polynomial::Deriv()	//Derivative
 {
 	Polynomial c;
@@ -206,20 +165,71 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 
 void Polynomial::Jas(Cdouble* z, int length, int i)
 {
+	Clear1();
+	cout<<"this"<<*this<<endl;
 	Cdouble coef(1.,0);
 	for(int n=0;n<length;n++)
 	{
 		if(n!=i)
 		{
-			//Polynomial c;
-			Clear1();
-			NewTerm(coef,1);
-			NewTerm(-z[n],0);
-			//(*this)=(*this)*c;
-			cout<<*this<<endl;
+			Polynomial c;
+			c.Clear1();
+			c.NewTerm(coef,1);
+			c.NewTerm(-z[n],0);
+			cout<<"term"<<c<<endl;
+			(*this)=(*this)*c;
+			cout<<"  now"<<(*this)<<endl;
 		}
 	}
 }
+
+/******Basic Functions*******/
+Polynomial& Polynomial::operator=(const Polynomial & poly)
+{
+	if(termArray!=NULL)
+	{
+		delete [] termArray;
+	}
+	this->capacity=poly.capacity;
+	this->terms=poly.terms;
+	this->termArray = new Term[this->capacity];
+	for(int i=0;i<terms;i++)
+	{
+		this->termArray[i].coef=poly.termArray[i].coef;
+		this->termArray[i].exp=poly.termArray[i].exp;
+	}
+	return *this;
+}
+
+Polynomial Polynomial::operator+(const Polynomial & b)  
+{  
+    Polynomial c;  
+    int aPos=0;  
+    int bPos=0;  
+    while(aPos<terms && bPos<b.terms){  
+        if(termArray[aPos].exp == b.termArray[bPos].exp){  
+            Cdouble coef=termArray[aPos].coef+b.termArray[bPos].coef;  
+            if(norm(coef)>0.00001)c.NewTerm(coef,termArray[aPos].exp);  
+            aPos++;bPos++;  
+        }else if(termArray[bPos].exp < b.termArray[bPos].exp){  
+            c.NewTerm(b.termArray[bPos].coef,b.termArray[bPos].exp);  
+            bPos++;  
+        }else{  
+            c.NewTerm(termArray[aPos].coef,termArray[aPos].exp);  
+            aPos++;  
+        }  
+    }  
+    while (aPos < terms){  
+        c.NewTerm(termArray[aPos].coef,termArray[aPos].exp);  
+        aPos++;  
+    }  
+    while (bPos < b.terms){  
+        c.NewTerm(b.termArray[bPos].coef,b.termArray[bPos].exp);  
+        bPos++;  
+    }  
+    return c;  
+}  
+
 Polynomial Polynomial::operator*(const Polynomial & b)  
 {  
     Polynomial c;  
@@ -233,10 +243,6 @@ Polynomial Polynomial::operator*(const Polynomial & b)
     return c;  
 }
 
-/**void Polynomial::operator=(const Polynomial & poly)
-{
-	
-}**/
 void Polynomial::NewTerm(Cdouble coef, int exp)  
 {  
     if(terms >= capacity){  
