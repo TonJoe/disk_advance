@@ -56,12 +56,12 @@ void Monca::DoJas()
 		ynm[i].Clear0();
 	int l=0,m=0,t=0;
 	int i,j;
-	for(i=0;i<n_p;i++)
+	for(i=0;i<n_p;i++)	//i'th row
 	{
-		for(j=0;j<n_p;j++,t++)
+		for(j=0;j<n_p;j++,t++)	//j'th column
 		{
-			l=n*t/n_p;
-			m=t%n_p-l;
+			l=i/(n_p/n);
+			m=i%(n_p/n)-l;
 			/**Now start calculate wave function**/
 			
 			for(int k=0;k<=n;k++)
@@ -75,6 +75,7 @@ void Monca::DoJas()
 				ynm[i*n_p+j]=ynm[i*n_p+j]+(tmp*JAS[j]).Deriv(k);
 				
 			}
+			cout<<"t="<<t<<"ynm("<<l<<","<<m<<")J"<<j<<"="<<ynm[i*n_p+j]<<endl;
 		}
 	}
 }
@@ -94,7 +95,7 @@ void Monca::Build()	//This gives single CF_wave_function.
 		
 		
 	}
-	DoJas();
+	//DoJas();
 }
 
 Cdouble Monca::CF_Wave(Cdouble *z)	//Calculate determinant of wave-funtion: many-body function
@@ -129,6 +130,7 @@ double Monca::Metrop(int steps)
 		JAS[i].Jas(z,n_p,i); 
 		//cout<<JAS[i]<<endl;
 	}
+	DoJas();
 	//cout<<CF_Wave(z)<<endl;
 	/**
 	for(int st=0;st<steps;st++)

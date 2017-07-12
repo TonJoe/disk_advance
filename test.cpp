@@ -35,9 +35,9 @@ void test()
 
 int main()
 {
-	test();
-	//Monca experiment(4,2,1);
-	//experiment.Metrop(100);
+	//test();
+	Monca experiment(4,2,1);
+	experiment.Metrop(100);
 	//cout<<experiment.Metrop(20000)<<endl;
 	system("Pause");
 }

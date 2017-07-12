@@ -167,21 +167,24 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 void Polynomial::Jas(Cdouble* z, int length, int i)
 {
 	Clear1();
-	cout<<"this"<<*this<<endl;
-	Cdouble coef(1.,0);
+	Cdouble coef(1.,0.);
 	for(int n=0;n<length;n++)
 	{
+		///cout<<"z_n="<<z[n]<<endl;
 		if(n!=i)
 		{
 			Polynomial c;
-			c.Clear1();
+			c.Clear0();
 			c.NewTerm(coef,1);
 			c.NewTerm(-z[n],0);
-			cout<<"term"<<c<<endl;
+			///cout<<"adding term"<<c<<endl;
 			(*this)=(*this)*c;
-			cout<<"  now"<<(*this)<<endl;
+			
 		}
+		
+		///cout<<"  now"<<(*this)<<endl;
 	}
+	cout<<"Jastrow="<<(*this)<<endl;
 }
 
 /******Basic Functions*******/
@@ -236,7 +239,7 @@ Polynomial Polynomial::operator*(const Polynomial & b)
     Polynomial c;  
     for(int i=0; i<terms; i++){  
         for(int j=0; j<b.terms; j++){  
-            Cdouble coef = termArray[i].coef*b.termArray[j].coef;  cout<<coef<<" !! ";
+            Cdouble coef = termArray[i].coef*b.termArray[j].coef; 
             int exp = termArray[i].exp + b.termArray[j].exp;  
             c.NewTerm(coef,exp);  
         }  
@@ -290,7 +293,7 @@ void Polynomial::InsertTerm(const Term & term)
             termArray[j+1]=termArray[j];  
         termArray[i] = term;  
         terms++;  
-		cout<<"!!!";
+		
     }  
 }  
 Cdouble Polynomial::Eval(Cdouble z)  
