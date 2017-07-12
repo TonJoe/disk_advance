@@ -1,3 +1,4 @@
+#define TINYY    1.5e-320
 
 #include<Disk_Math.h>
 
@@ -44,7 +45,7 @@ protected:
 
 Polynomial::Polynomial()	//Initializaing a polynomial with 5 terms.
 {
-	this->terms=0;
+	this->terms=1;
 	this->capacity=5;
 	termArray= new Term[this->capacity];
 	for(int i=0;i<capacity;i++)
@@ -76,7 +77,7 @@ void Polynomial::Clear1()
 		
 	delete [] termArray;
 	
-	this->terms=0;
+	this->terms=1;
 	this->capacity=5;
 	this->termArray = new Term[capacity];
 	for(int i=0;i<capacity;i++)
@@ -94,7 +95,7 @@ void Polynomial::Clear0()
 		
 	delete [] termArray;
 	
-	this->terms=0;
+	this->terms=1;
 	this->capacity=5;
 	this->termArray = new Term[capacity];
 	for(int i=0;i<capacity;i++)
@@ -235,7 +236,7 @@ Polynomial Polynomial::operator*(const Polynomial & b)
     Polynomial c;  
     for(int i=0; i<terms; i++){  
         for(int j=0; j<b.terms; j++){  
-            Cdouble coef = termArray[i].coef*b.termArray[j].coef;  
+            Cdouble coef = termArray[i].coef*b.termArray[j].coef;  cout<<coef<<" !! ";
             int exp = termArray[i].exp + b.termArray[j].exp;  
             c.NewTerm(coef,exp);  
         }  
@@ -253,9 +254,18 @@ void Polynomial::NewTerm(Cdouble coef, int exp)
 			tmp[i].coef=polar(0.,0.);
 			tmp[i].exp=0;
 		}
-        copy(termArray,termArray+terms,tmp);  
+        //copy(termArray,termArray+terms,tmp);  
+		for(int i=0;i<capacity;i++)
+		{
+			tmp[i]=termArray[i];
+		}
         delete [] termArray;  
-        termArray = tmp;  
+        termArray = new Term[capacity];
+		for(int i=0;i<terms;i++)
+		{
+			termArray[i]=tmp[i];
+		}
+		delete [] tmp;
     }  
     Term ATerm;  
     ATerm.coef=coef;ATerm.exp=exp;  
@@ -267,10 +277,12 @@ void Polynomial::InsertTerm(const Term & term)
     for(i=0; i<terms && term.exp<termArray[i].exp; i++){  
     }  
     if(term.exp == termArray[i].exp){  
-        termArray[i].coef += term.coef;  
-        if(termArray[i].coef==polar(0.,0.)){  
+        termArray[i].coef=termArray[i].coef+ term.coef;  
+        if(norm(termArray[i].coef)<TINYY){  
             for(int j=i; j<terms-1; j++)  
                 termArray[j]= termArray[j+1];  
+			termArray[terms-1].coef=polar(0.,0.);
+			termArray[terms-1].exp=0;
             terms--;  
         }  
     }else{  
@@ -278,6 +290,7 @@ void Polynomial::InsertTerm(const Term & term)
             termArray[j+1]=termArray[j];  
         termArray[i] = term;  
         terms++;  
+		cout<<"!!!";
     }  
 }  
 Cdouble Polynomial::Eval(Cdouble z)  
