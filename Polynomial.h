@@ -46,6 +46,12 @@ Polynomial::Polynomial()	//Initializaing a polynomial with 5 terms.
 	this->terms=0;
 	this->capacity=5;
 	termArray= new Term[this->capacity];
+	for(int i=0;i<capacity;i++)
+	{
+		termArray[i].coef=polar(0.,0.);
+		termArray[i].exp=0;
+
+	}
 }
 
 Polynomial::Polynomial(const Polynomial & b)  //Initializaing a polynomial copying from b
@@ -72,6 +78,12 @@ void Polynomial::Clear1()
 	this->terms=0;
 	this->capacity=5;
 	this->termArray = new Term[capacity];
+	for(int i=0;i<capacity;i++)
+	{
+		termArray[i].coef=polar(0.,0.);
+		termArray[i].exp=0;
+
+	}
 	Cdouble c(1.,0.);
 	this->NewTerm(c,0);	
 }
@@ -84,8 +96,12 @@ void Polynomial::Clear0()
 	this->terms=0;
 	this->capacity=5;
 	this->termArray = new Term[capacity];
-	Cdouble c(0.,0.);
-	this->NewTerm(c,0);	
+	for(int i=0;i<capacity;i++)
+	{
+		termArray[i].coef=polar(0.,0.);
+		termArray[i].exp=0;
+
+	}
 }
 
 Polynomial& Polynomial::operator=(const Polynomial & poly)
@@ -195,11 +211,12 @@ void Polynomial::Jas(Cdouble* z, int length, int i)
 	{
 		if(n!=i)
 		{
-			Polynomial c;
-			c.Clear1();
-			c.NewTerm(coef,1);
-			c.NewTerm(-z[n],0);
-			(*this)=(*this)*c;
+			//Polynomial c;
+			Clear1();
+			NewTerm(coef,1);
+			NewTerm(-z[n],0);
+			//(*this)=(*this)*c;
+			cout<<*this<<endl;
 		}
 	}
 }
@@ -224,7 +241,12 @@ void Polynomial::NewTerm(Cdouble coef, int exp)
 {  
     if(terms >= capacity){  
         capacity *= 2;  
-        Term *tmp = new Term[capacity];  
+        Term *tmp = new Term[capacity];
+		for(int i=0;i<capacity;i++)
+		{
+			tmp[i].coef=polar(0.,0.);
+			tmp[i].exp=0;
+		}
         copy(termArray,termArray+terms,tmp);  
         delete [] termArray;  
         termArray = tmp;  
@@ -263,10 +285,10 @@ Cdouble Polynomial::Eval(Cdouble z)
 
 ostream & operator<<(ostream & o,const Polynomial & poly)  
 {  
-    for(int i=0;i<poly.terms-1;i++){  
+    for(int i=0;i<poly.capacity-1;i++){  
         o<<poly.termArray[i].coef<<"x^"<<poly.termArray[i].exp<<" + ";  
     }  
-    o<<poly.termArray[poly.terms-1].coef<<"x^"<<poly.termArray[poly.terms-1].exp;  
+    o<<poly.termArray[poly.capacity-1].coef<<"x^"<<poly.termArray[poly.capacity-1].exp;  
     return o;  
 }
 

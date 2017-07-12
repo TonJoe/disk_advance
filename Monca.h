@@ -1,6 +1,7 @@
 #include<Polynomial.h>
 #include<LA1.h>
-/**
+#include<det.h>
+double EllipticE(double x);
 class Monca
 {
 public:
@@ -9,26 +10,50 @@ public:
 	Polynomial *ynm;		//Projected landau level function
 public:
 	//Monca();
+	Monca(int N_p, int N, int P);
 	//~Monca();
 	
 	void Build();
-	Cdouble CF_Wave(Cdouble z*);
-	void Metrop(int N_p, int N, int P, int steps);
+	Cdouble CF_Wave(Cdouble *z);
+	double Metrop(int steps);
+	double Vee(int n, complex<double> *z);
+	double Vbb(int n, double niu);
+	double Vbe(int n, double niu, double RN, complex<double> *z);
+
 	
-	void G_Metrop(int n_p, int n, int p, int steps);	//Ground state Metropolis. particle number, filling factor n, flux number p,(v=n/(2pn+1)), Metropolis steps
-	void Ex_Metrop(int n_p, int n, int p, int steps);	//Exciton Metropolis
+	//void G_Metrop(int n_p, int n, int p, int steps);	//Ground state Metropolis. particle number, filling factor n, flux number p,(v=n/(2pn+1)), Metropolis steps
+	//void Ex_Metrop(int n_p, int n, int p, int steps);	//Exciton Metropolis
+	
 	Cdouble *z;
 	int n_p,n,p;
 	double RN;
 };
-void Monca::Build()
+Monca::Monca(int N_p, int N, int P)
 {
-	JAS=new Polynomial[n_p];
-	ynm=new Polynomial[n_p];
+	n_p=N_p;
+	n=N;
+	p=P;
+	double niu=double(n)/(2.*n*n_p+1.);
+	RN=sqrt(2.0*n_p/niu);
+	
+	z=new Cdouble[n_p];
+	LY=new Polynomial [n_p];
+	ynm=new Polynomial [n_p];
+	JAS=new Polynomial [n_p];
+}
+void Monca::Build()	//This gives single CF_wave_function.
+{
+	//JAS=new Polynomial[n_p];
+	//ynm=new Polynomial[n_p];
 	for(int i=0;i<n_p;i++)
 	{
+		cout<<"z[i]="<<z[i]<<endl;
+		cout<<n_p<<endl;
 		JAS[i].Clear1();
-		JAS[i].Jas(z,n_p,i);
+		JAS[i].Jas(z,n_p,i); 
+		
+		cout<<JAS[i]<<endl;
+		
 		ynm[i].Clear0();
 	}
 	int i=0;
@@ -49,42 +74,87 @@ void Monca::Build()
 	}
 }
 
-Cdouble CF_Wave(Cdouble z*)	//Calculate determinant wave-funtion
+Cdouble Monca::CF_Wave(Cdouble *z)	//Calculate determinant of wave-funtion: many-body function
 {
-	Cdouble product(1.0,0.0);
-	Cdouble sum(0.,0.);
-	for(int j=0;j<n_p;j++)
+	Cdouble matrix[n_p*n_p];
+	for(int i=0;i<n_p;i++)	// i'th function
+	{
+		for(int j=0;j<n_p;j++)	//j'th coordinate
 		{
-			for(int i=0;i<n_p;i++)
-			{
-				product=product*ynm[(i+j)%n_p].Eval(z[i]);
-			}
-			sum=sum+product;
+			//cout<<ynm[i]<<endl;
+			matrix[i*n_p+j]=ynm[i].Eval(z[j]);
 		}
-	///	for
+	}
+	//return polar(1.,0.);
+	return cpxdbl_det0(matrix, n_p);
 }
 
-void Monca::Metrop(int N_p, int N, int P, int steps)
+double Monca::Metrop(int steps)
 {
-	n_p=N_p;
-	n=N;
-	p=P;
 	Cdouble r[n_p];
+	double Energy=0;
 	
-	for(int i=0;i<n;i++)
+	
+	for(int i=0;i<n_p;i++)
 	{
 		z[i]=polar((double)(double(rand())/double(RAND_MAX))*RN,(double)(double(rand())/double(RAND_MAX))*2.*PI);
-		//cout<<z[i]<<endl;
+		cout<<z[i]<<endl;  
+		
 	}
+	for(int i=0;i<n_p;i++)
+	{
+		JAS[i].Jas(z,n_p,i); 
+		//cout<<JAS[i]<<endl;
+	}
+	//cout<<CF_Wave(z)<<endl;
+	/**
 	for(int st=0;st<steps;st++)
 	{
-		
+		Build();
 		
 		for(int j=0;j<n;j++)	//Copy to a buffer
 		{
-			r[j]=z[j];
+			r[j]=z[j]; //cout<<r[j]<<"  ";
 		}		
 		r[st%n_p]=r[st%n_p]+polar((double(rand())/double(RAND_MAX))*0.2*RN,(double(rand())/double(RAND_MAX))*2.*PI);
-		if(norm(CF_Wave[r]/CF_Wave[z])>1.)
+		
+		if(norm(CF_Wave(r)/CF_Wave(z))>(double(rand())/double(RAND_MAX)))
+			z[st%n_p]=r[st%n_p];
+		Energy=Energy+Vee(n_p, z);
+	}**/
+	return Energy;
+}
+
+
+/***********************************/
+/**Three potentials: e-e, e-b, b-b**/
+/***********************************/
+double Monca::Vee(int n, complex<double> *z)
+{
+	double V=0;
+	for(int i=0;i<n;i++)
+		for(int j=i+1;j<n;j++)
+		{
+			V=V+1./abs(z[i]-z[j]);
+		}
+	return V;
+}
+double Monca::Vbb(int n, double niu)
+{
+	return n*8./3./PI*sqrt(niu*n/2);
+}
+double Monca::Vbe(int n, double niu, double RN, complex<double> *z)
+{
+	double sum=0.0;
+	for(int i=0;i<n;i++)
+	{
+		sum=sum+EllipticE((abs(z[i])/RN)*(abs(z[i])/RN));
 	}
-}**/
+	return -sqrt(2.*niu*n)*sum*2/PI;
+}
+
+double EllipticE(double x)	//Elliptic function, for the use of the evaluation for some wave functions.
+{
+	return PI/2.-PI/8.*x-3.*PI/128.*x*x-5.*PI/512.*pow(x,3)-175.*PI/32768.*pow(x,4)-441.*PI/131072.*pow(x,5)-4851*PI/2097152.*pow(x,6)-14157.*PI/8388608.*pow(x,7)-2760615.*PI/2147483648.*pow(x,8)-8690825.*PI/8589934592*pow(x,9)-112285459.*PI/137438953472.*pow(x,10);
+
+}

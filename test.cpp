@@ -1,6 +1,7 @@
 //#include <Polynomial.h>
-#include "Polynomial.h"
-#include "LA1.h"
+//#include "Polynomial.h"
+//#include "LA1.h"
+#include "Monca.h"
 
 using namespace std;
 void test()  
@@ -38,6 +39,9 @@ void test()
 
 int main()
 {
-	test();
+	//test();
+	Monca experiment(4,2,1);
+	experiment.Metrop(100);
+	//cout<<experiment.Metrop(20000)<<endl;
 	system("Pause");
 }

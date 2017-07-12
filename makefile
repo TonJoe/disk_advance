@@ -1,4 +1,4 @@
 all: Disk_Math.h Polynomial.h test.cpp Monca.h
-	g++ Disk_Math.h Polynomial.h Monca.h test.cpp -I.
+	g++ Disk_Math.h Polynomial.h Monca.h LA1.h test.cpp -I.
 clean:
 	

@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-
 #define TINY    1.5e-300
 #define TINYL    1.5e-1000L
 
@@ -22,7 +21,7 @@ void nrerror(char error_text[])
   fprintf(stderr,"...now exiting to system...\n");
   exit(1);
 }
-void cpxdbl_ludcmp0(complex<double> **a,int n,double *d)
+void cpxdbl_ludcmp0(complex<double> *a,int n,double *d)
 {
 	double veevee[n+1];
 	int i,imax,j,k;
@@ -34,7 +33,7 @@ void cpxdbl_ludcmp0(complex<double> **a,int n,double *d)
   {
     big=0.0;
     for(j=0;j<n;j++)
-      if( (temp=abs(a[i][j]))>big)       big=temp;
+      if( (temp=abs(a[i*n+j]))>big)       big=temp;
     if(big==0.0)      	{
 				nrerror("Singular matrix in routine cpx_ludcmp\n");
 			}
@@ -42,16 +41,16 @@ void cpxdbl_ludcmp0(complex<double> **a,int n,double *d)
   }
   for(j=0;j<n;j++){
     for(i=0;i<j;i++){
-      sum= a[i][j];
-      for(k=0;k<i;k++)     sum=sum-a[i][k]*a[k][j];
-      a[i][j]=sum;
+      sum= a[i*n+j];
+      for(k=0;k<i;k++)     sum=sum-a[i*n+k]*a[k*n+j];
+      a[i*n+j]=sum;
     }
     big=0.0;
     for(i=j;i<n;i++){
-      sum=a[i][j];
+      sum=a[i*n+j];
       for(k=0;k<j;k++)
-        sum=sum-a[i][k]*a[k][j];
-      a[i][j]=sum;
+        sum=sum-a[i*n+k]*a[k*n+j];
+      a[i*n+j]=sum;
 
       /* Is the figure of matrix for the pivot better than the best so far? */
       if( (dum=veevee[i]*abs(sum)) >= big){
@@ -63,23 +62,23 @@ void cpxdbl_ludcmp0(complex<double> **a,int n,double *d)
     /*Do we need to interchange rows? Yes, do so.. */
     if(j!=imax){
       for(k=0;k<n;k++){
-        dum2=a[imax][k];
-        a[imax][k]=a[j][k];
-  a[imax][k]=a[j][k];
-        a[j][k]=dum2;
+        dum2=a[imax*n+k];
+        a[imax*n+k]=a[j*n+k];
+  a[imax*n+k]=a[j*n+k];
+        a[j*n+k]=dum2;
       }
       *d=-(*d);
       veevee[imax]=veevee[j];
     }
-    if(abs(a[j][j])==0.0)     a[j][j]=TINY+polar(0.0,1.0)*TINY;
+    if(abs(a[j*n+j])==0.0)     a[j*n+j]=TINY+polar(0.0,1.0)*TINY;
     if(j!=n){
-      dum2=1.0/a[j][j];
-      for(i=j+1;i<n;i++)      a[i][j]=a[i][j]*dum2;
+      dum2=1.0/a[j*n+j];
+      for(i=j+1;i<n;i++)      a[i*n+j]=a[i*n+j]*dum2;
     }
   }
 }
 
-complex<double> cpxdbl_det0(complex<double> **a,int n)
+complex<double> cpxdbl_det0(complex<double> *a,int n)
 {
   int i;
   double d;
@@ -88,7 +87,7 @@ complex<double> cpxdbl_det0(complex<double> **a,int n)
   cpxdbl_ludcmp0(a,n,&d);
   det=d;
   for(i=0;i<n;i++){
-    det=det*a[i][i];
+    det=det*a[i*n+i];
   }
 return det;
 }
