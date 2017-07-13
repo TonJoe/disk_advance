@@ -38,6 +38,7 @@ int main()
 	//test();
 	Monca experiment(6,2,1);
 	//experiment.Metrop(1000);
-	cout<<experiment.Metrop(500000)<<endl;
+	//experiment.Metrop(50);
+	cout<<experiment.Metrop(100)<<endl;
 	system("Pause");
 }

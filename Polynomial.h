@@ -249,10 +249,11 @@ Polynomial Polynomial::operator*(const Polynomial & b)
 
 void Polynomial::NewTerm(Cdouble coef, int exp)  
 {  
+cout<<"Shit! terms="<<terms<<" capacity="<<capacity<<endl;
     if(terms >= capacity){  
-        capacity *= 2;  
-        Term *tmp = new Term[capacity];
-		for(int i=0;i<capacity;i++)
+        
+        Term *tmp = new Term[3*capacity];
+		for(int i=0;i<3*capacity;i++)
 		{
 			tmp[i].coef=polar(0.,0.);
 			tmp[i].exp=0;
@@ -263,8 +264,9 @@ void Polynomial::NewTerm(Cdouble coef, int exp)
 			tmp[i]=termArray[i];
 		}
         delete [] termArray;  
-        termArray = new Term[capacity];
-		for(int i=0;i<terms;i++)
+        termArray = new Term[3*capacity];
+		capacity *= 3; 
+		for(int i=0;i<capacity;i++)
 		{
 			termArray[i]=tmp[i];
 		}
@@ -287,30 +289,34 @@ void Polynomial::InsertTerm(const Term & term)
 			termArray[terms-1].coef=polar(0.,0.);
 			termArray[terms-1].exp=0;
             terms--;  
+			//cout<<terms;
         }  
     }else{  
         for(int j=terms-1; j>=i;j--)  
             termArray[j+1]=termArray[j];  
         termArray[i] = term;  
         terms++;  
-		
+		//cout<<terms;
     }  
 }  
 Cdouble Polynomial::Eval(Cdouble z)  
 {  
     Cdouble res=polar(0.,0.);  
+	cout<<"The temporary terms="<<terms<<endl;
     for(int i=0;i<terms; i++){  
-        res =res+ termArray[i].coef * pow(z,termArray[i].exp);  
+       res =res+ termArray[i].coef * pow(z,termArray[i].exp);
+		
+		//res=Cdouble(double(i),0.0);
     }  
     return res;  
 }
 
 ostream & operator<<(ostream & o,const Polynomial & poly)  
 {  
-    for(int i=0;i<poly.capacity-1;i++){  
+    for(int i=0;i<poly.terms-1;i++){  
         o<<poly.termArray[i].coef<<"x^"<<poly.termArray[i].exp<<" + ";  
     }  
-    o<<poly.termArray[poly.capacity-1].coef<<"x^"<<poly.termArray[poly.capacity-1].exp;  
+    o<<poly.termArray[poly.terms-1].coef<<"x^"<<poly.termArray[poly.terms-1].exp;  
     return o;  
 }
 

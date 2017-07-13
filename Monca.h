@@ -9,14 +9,17 @@ public:
 	///Polynomial *LY;			//Landaul level
 	Polynomial *JAS;		//Jastrow Factor
 	Polynomial *ynm;		//Projected landau level function
+	Polynomial *tmpJAS;		//temp polynomial, for the buffer in Monte-Carlo
+	Polynomial *tmpynm;
+	
 public:
 	//Monca();
 	Monca(int N_p, int N, int P);
 	//~Monca();
 	
-	void DoJas();
-	void Build();
-	Cdouble CF_Wave(const Cdouble *z);
+	void DoJas(Polynomial *JAS, Polynomial *ynm);
+	void Build(Polynomial *JAS, Polynomial *ynm, Cdouble *z);
+	Cdouble CF_Wave( Polynomial *tynm,  Cdouble *tz);
 	double Metrop(int steps);
 	double Vee(int n, complex<double> *z);
 	double Vbb(int n, double niu);
@@ -26,7 +29,7 @@ public:
 	//void G_Metrop(int n_p, int n, int p, int steps);	//Ground state Metropolis. particle number, filling factor n, flux number p,(v=n/(2pn+1)), Metropolis steps
 	//void Ex_Metrop(int n_p, int n, int p, int steps);	//Exciton Metropolis
 	
-	Cdouble *z;
+	Cdouble *z,*r;
 	int n_p,n,p;
 	double niu,RN;
 };
@@ -39,30 +42,36 @@ Monca::Monca(int N_p, int N, int P)
 	RN=sqrt(2.0*n_p/niu);
 	
 	z=new Cdouble[n_p];
+	r=new Cdouble[n_p];
 	///LY=new Polynomial [n_p*n_p];
-	ynm=new Polynomial [n_p*n_p];
+	ynm=new Polynomial [n_p*n_p];	
+	tmpynm=new Polynomial [n_p*n_p];
+	
 	JAS=new Polynomial [n_p];
+	tmpJAS=new Polynomial [n_p];
 }
-void Monca::DoJas()
+void Monca::DoJas(Polynomial *tJAS, Polynomial *tynm)
 {
-	if(JAS==NULL)
+	if(tJAS==NULL)
 	{
 		cout<<"Void Jastrow."<<endl;
 		return;
 	}
-	delete [] ynm;
-	ynm=new Polynomial[n_p*n_p];
+	/**
+	if(tynm!=NULL)
+		delete [] tynm;
+	tynm=new Polynomial[n_p*n_p];**/
 	for(int i=0;i<n_p*n_p;i++)
-		ynm[i].Clear0();
-	int l=0,m=0,t=0;
+		tynm[i].Clear0();
+	int l=0,m=0;
 	int i,j;
 	for(i=0;i<n_p;i++)	//i'th row
 	{
-		for(j=0;j<n_p;j++,t++)	//j'th column
+		for(j=0;j<n_p;j++)	//j'th column
 		{
 			l=i/(n_p/n);
 			m=i%(n_p/n)-l;
-			/**Now start calculate wave function**/
+			/**Now start calculating wave function**/
 			
 			for(int k=0;k<=n;k++)
 			{
@@ -72,7 +81,7 @@ void Monca::DoJas()
 				Polynomial tmp;
 				tmp.Clear0();
 				tmp.NewTerm(coef,k+m);
-				ynm[i*n_p+j]=ynm[i*n_p+j]+(tmp*JAS[j]).Deriv(k);
+				tynm[i*n_p+j]=tynm[i*n_p+j]+(tmp*tJAS[j]).Deriv(k);
 				
 			}
 			//cout<<endl<<"t="<<t<<"  ynm("<<l<<","<<m<<")J"<<j<<"="<<ynm[i*n_p+j]<<endl;
@@ -80,7 +89,7 @@ void Monca::DoJas()
 	}
 }
 
-void Monca::Build()	//This gives single CF_wave_function.
+void Monca::Build(Polynomial *tJAS, Polynomial *tynm, Cdouble *tz)	//This gives single CF_wave_function.
 {
 	//JAS=new Polynomial[n_p];
 	//ynm=new Polynomial[n_p];
@@ -88,31 +97,33 @@ void Monca::Build()	//This gives single CF_wave_function.
 	{
 		//cout<<"z[i]="<<z[i]<<endl;
 		//cout<<n_p<<endl;
-		JAS[i].Clear1();
-		JAS[i].Jas(z,n_p,i); 
+		tJAS[i].Clear1();
+		tJAS[i].Jas(tz,n_p,i); 
 		
 		//cout<<JAS[i]<<endl;
 		
 		
 	}
-	DoJas();
+	DoJas(tJAS, tynm);
 }
 
-Cdouble Monca::CF_Wave(const Cdouble *z)	//Calculate determinant of wave-funtion: many-body function
+Cdouble Monca::CF_Wave( Polynomial *tynm,  Cdouble *tz)	//Calculate determinant of wave-funtion: many-body function
 {
-	Cdouble matrix[n_p*n_p];
+	Cdouble *matrix;
+	matrix=new Cdouble[n_p*n_p];
 	double sum=0.;
 	for(int i=0;i<n_p;i++)	// i'th function
 	{
 		for(int j=0;j<n_p;j++)	//j'th coordinate
 		{
 			//cout<<ynm[i]<<endl;
-			matrix[i*n_p+j]=ynm[i*n_p+j].Eval(z[j]);
+			matrix[i*n_p+j]=tynm[i*n_p+j].Eval(tz[j]);
+			//cout<<tynm[i*n_p+j]<<endl;
 		}
 	}
 	for(int i=0;i<n_p;i++)
 	{
-		sum=sum+norm(z[i]);
+		sum=sum+norm(tz[i]);
 	}
 	sum=exp(-0.25*sum);
 	Cdouble ep(sum,0.);
@@ -123,49 +134,55 @@ Cdouble Monca::CF_Wave(const Cdouble *z)	//Calculate determinant of wave-funtion
 double Monca::Metrop(int steps)
 {
 	cout<<"The current program only applies for the case p=1, since I didn't make the exponent of Jastrow."<<endl;
-	Cdouble r[n_p];
+	//Cdouble r[n_p];
 	double Energy=0;
 	
 	srand (time(NULL));
 	for(int i=0;i<n_p;i++)
 	{
 		z[i]=polar((double)(double(rand())/double(RAND_MAX))*RN,(double)(double(rand())/double(RAND_MAX))*2.*PI);
+		r[i]=z[i];
 		cout<<z[i]<<endl;  
 		
 	}
-	/**
-	for(int i=0;i<n_p;i++)
-	{
-		JAS[i].Jas(z,n_p,i); 
-		cout<<JAS[i]<<endl;
-	}
-	DoJas();
-	//cout<<CF_Wave(z)<<endl;
-	**/
+	
+	
 	for(int st=0;st<steps;st++)
-	{
-		
-		Build();
-		
+	{		
 		for(int j=0;j<n_p;j++)	//Copy to a buffer
 		{
 			r[j]=z[j]; //cout<<r[j]<<"  "<<z[j]<<endl;
 		}	
 		//cout<<norm(CF_Wave(z))<<"  "<<norm(CF_Wave(r))<<endl;
 		r[st%n_p]=r[st%n_p]+polar((double(rand())/double(RAND_MAX))*0.15*RN,(double(rand())/double(RAND_MAX))*2.*PI);
-		//cout<<norm(CF_Wave(z))<<"  "<<norm(CF_Wave(r))<<endl<<endl;
-		if(norm(CF_Wave(r)/CF_Wave(z))>(double(rand())/double(RAND_MAX))&&norm(r[st%n_p])<RN*RN)
+		for(int i=0;i<n_p;i++)
+			//cout<<r[i]<<z[i]<<endl;
+		
+		Build(JAS, ynm, z);
+		cout<<"Now error sofar"<<endl;
+		for(int i=0;i<n_p*n_p;i++)
+		{
+			//cout<<ynm[i]<<endl<<tmpynm[i]<<endl<<endl;
+		}
+		Build(tmpJAS, tmpynm, r);
+		cout<<"Now error sofar"<<endl;
+
+		
+		cout<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm, r))<<endl;
+		if(norm(CF_Wave(tmpynm, r)/CF_Wave(ynm, z))>(double(rand())/double(RAND_MAX))&&norm(r[st%n_p])<RN*RN)
 		{	
-			//cout<<"accept"<<endl;
+			cout<<"accept"<<endl;
+			
 			z[st%n_p]=r[st%n_p];
+			//cout<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm, r))<<endl<<endl;
 		}
 		else
 		{
-			//cout<<"refuse"<<endl;
+			cout<<"refuse"<<endl<<endl;
 		}
 		Energy=Energy+Vee(n_p, z);
-		
 	}
+	cout<<"Now error sofar"<<endl;
 	return Energy/steps;
 }
 
