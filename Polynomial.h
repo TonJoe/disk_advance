@@ -117,7 +117,7 @@ Polynomial Polynomial::Deriv()	//Derivative
 	while(bPos<this->terms)
 	{
 		Cdouble bexp(this->termArray[bPos].exp,0);
-		Cdouble coef(this->termArray[bPos].coef*bexp); cout<<coef<<norm(coef)<<"  ";
+		Cdouble coef(this->termArray[bPos].coef*bexp); //cout<<coef<<norm(coef)<<"  ";
 		if(norm(coef)>0.0000001)
 		{
 			c.NewTerm(coef,this->termArray[bPos].exp-1);
@@ -138,7 +138,7 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 	{
 		Cdouble bexp(this->termArray[bPos].exp,0.);
 		
-		if(this->termArray[bPos].exp>0)		//positive exponent
+		if(this->termArray[bPos].exp>=0)		//positive exponent
 		{
 			if(this->termArray[bPos].exp>=n)
 			{
@@ -184,7 +184,7 @@ void Polynomial::Jas(Cdouble* z, int length, int i)
 		
 		///cout<<"  now"<<(*this)<<endl;
 	}
-	cout<<"Jastrow="<<(*this)<<endl;
+	//cout<<"Jastrow="<<(*this)<<endl;
 }
 
 /******Basic Functions*******/
