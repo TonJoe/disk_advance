@@ -30,7 +30,7 @@ public:
 	void Clear0();
 	Polynomial Deriv();
 	Polynomial Deriv(int n);
-	void Jas(Cdouble *z, int length, int i);	//This is the methodd to construct a Jas factor from a series of coordinates z*, length 'length', the center coordinate z_i. J_i=\sum(z_i-z_k),k!=j
+	void Jas(const Cdouble *z, int length, int i);	//This is the methodd to construct a Jas factor from a series of coordinates z*, length 'length', the center coordinate z_i. J_i=\sum(z_i-z_k),k!=j
 	
 	//void operator=(const Polynomial & poly);
 	Cdouble Eval(Cdouble z);	//Evaluate the polynomial;
@@ -164,7 +164,7 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 	return c;
 }
 
-void Polynomial::Jas(Cdouble* z, int length, int i)
+void Polynomial::Jas(const Cdouble* z, int length, int i)
 {
 	Clear1();
 	Cdouble coef(1.,0.);
@@ -249,7 +249,7 @@ Polynomial Polynomial::operator*(const Polynomial & b)
 
 void Polynomial::NewTerm(Cdouble coef, int exp)  
 {  
-cout<<"Shit! terms="<<terms<<" capacity="<<capacity<<endl;
+///cout<<"Shit! terms="<<terms<<" capacity="<<capacity<<endl;
     if(terms >= capacity){  
         
         Term *tmp = new Term[3*capacity];
@@ -302,7 +302,8 @@ void Polynomial::InsertTerm(const Term & term)
 Cdouble Polynomial::Eval(Cdouble z)  
 {  
     Cdouble res=polar(0.,0.);  
-	cout<<"The temporary terms="<<terms<<endl;
+	//cout<<endl<<terms<<" &"<<capacity<<"**";
+	//cout<<"The temporary terms="<<terms<<endl;
     for(int i=0;i<terms; i++){  
        res =res+ termArray[i].coef * pow(z,termArray[i].exp);
 		

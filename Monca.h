@@ -17,9 +17,9 @@ public:
 	Monca(int N_p, int N, int P);
 	//~Monca();
 	
-	void DoJas(Polynomial *JAS, Polynomial *ynm);
-	void Build(Polynomial *JAS, Polynomial *ynm, Cdouble *z);
-	Cdouble CF_Wave( Polynomial *tynm,  Cdouble *tz);
+	void DoJas(const Polynomial *JAS, Polynomial *ynm);
+	void Build(Polynomial *JAS, Polynomial *ynm, const Cdouble *z);
+	Cdouble CF_Wave( Polynomial *tynm, const Cdouble *tz);
 	double Metrop(int steps);
 	double Vee(int n, complex<double> *z);
 	double Vbb(int n, double niu);
@@ -50,19 +50,21 @@ Monca::Monca(int N_p, int N, int P)
 	JAS=new Polynomial [n_p];
 	tmpJAS=new Polynomial [n_p];
 }
-void Monca::DoJas(Polynomial *tJAS, Polynomial *tynm)
+void Monca::DoJas(const Polynomial *tJAS, Polynomial *tynm)
 {
 	if(tJAS==NULL)
 	{
 		cout<<"Void Jastrow."<<endl;
 		return;
 	}
-	/**
+	
 	if(tynm!=NULL)
-		delete [] tynm;
-	tynm=new Polynomial[n_p*n_p];**/
+	{
 	for(int i=0;i<n_p*n_p;i++)
+	{
 		tynm[i].Clear0();
+		//cout<<tynm[i];
+	}
 	int l=0,m=0;
 	int i,j;
 	for(i=0;i<n_p;i++)	//i'th row
@@ -87,27 +89,22 @@ void Monca::DoJas(Polynomial *tJAS, Polynomial *tynm)
 			//cout<<endl<<"t="<<t<<"  ynm("<<l<<","<<m<<")J"<<j<<"="<<ynm[i*n_p+j]<<endl;
 		}
 	}
+	}
 }
 
-void Monca::Build(Polynomial *tJAS, Polynomial *tynm, Cdouble *tz)	//This gives single CF_wave_function.
+void Monca::Build(Polynomial *tJAS, Polynomial *tynm, const Cdouble *tz)	//This gives single CF_wave_function.
 {
 	//JAS=new Polynomial[n_p];
 	//ynm=new Polynomial[n_p];
 	for(int i=0;i<n_p;i++)
 	{
-		//cout<<"z[i]="<<z[i]<<endl;
-		//cout<<n_p<<endl;
-		tJAS[i].Clear1();
+		//tJAS[i].Clear1();
 		tJAS[i].Jas(tz,n_p,i); 
-		
-		//cout<<JAS[i]<<endl;
-		
-		
 	}
 	DoJas(tJAS, tynm);
 }
 
-Cdouble Monca::CF_Wave( Polynomial *tynm,  Cdouble *tz)	//Calculate determinant of wave-funtion: many-body function
+Cdouble Monca::CF_Wave( Polynomial *tynm, const Cdouble *tz)	//Calculate determinant of wave-funtion: many-body function
 {
 	Cdouble *matrix;
 	matrix=new Cdouble[n_p*n_p];
@@ -134,7 +131,6 @@ Cdouble Monca::CF_Wave( Polynomial *tynm,  Cdouble *tz)	//Calculate determinant 
 double Monca::Metrop(int steps)
 {
 	cout<<"The current program only applies for the case p=1, since I didn't make the exponent of Jastrow."<<endl;
-	//Cdouble r[n_p];
 	double Energy=0;
 	
 	srand (time(NULL));
@@ -142,47 +138,41 @@ double Monca::Metrop(int steps)
 	{
 		z[i]=polar((double)(double(rand())/double(RAND_MAX))*RN,(double)(double(rand())/double(RAND_MAX))*2.*PI);
 		r[i]=z[i];
-		cout<<z[i]<<endl;  
+		//cout<<z[i]<<endl;  
 		
 	}
 	
 	
 	for(int st=0;st<steps;st++)
-	{		
+	{	
+		//for(int i=0;i<n_p;i++)cout<<"&&&&&&&&&&&&&&&&&"<<z[i]-r[i]<<endl;
+		
 		for(int j=0;j<n_p;j++)	//Copy to a buffer
 		{
-			r[j]=z[j]; //cout<<r[j]<<"  "<<z[j]<<endl;
+			r[j]=z[j]; 
 		}	
-		//cout<<norm(CF_Wave(z))<<"  "<<norm(CF_Wave(r))<<endl;
+		
 		r[st%n_p]=r[st%n_p]+polar((double(rand())/double(RAND_MAX))*0.15*RN,(double(rand())/double(RAND_MAX))*2.*PI);
-		for(int i=0;i<n_p;i++)
-			//cout<<r[i]<<z[i]<<endl;
 		
 		Build(JAS, ynm, z);
-		cout<<"Now error sofar"<<endl;
-		for(int i=0;i<n_p*n_p;i++)
-		{
-			//cout<<ynm[i]<<endl<<tmpynm[i]<<endl<<endl;
-		}
 		Build(tmpJAS, tmpynm, r);
-		cout<<"Now error sofar"<<endl;
-
-		
-		cout<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm, r))<<endl;
+		cout<<RAND_MAX<<" Step:"<<st<<":: "<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm,r))<<endl;
 		if(norm(CF_Wave(tmpynm, r)/CF_Wave(ynm, z))>(double(rand())/double(RAND_MAX))&&norm(r[st%n_p])<RN*RN)
 		{	
-			cout<<"accept"<<endl;
+			cout<<"accept:"<<st<<endl;
 			
 			z[st%n_p]=r[st%n_p];
-			//cout<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm, r))<<endl<<endl;
+			
+			//Build(JAS, ynm, z);
 		}
 		else
 		{
-			cout<<"refuse"<<endl<<endl;
+			cout<<"refuse:"<<st<<endl;
 		}
+		
 		Energy=Energy+Vee(n_p, z);
 	}
-	cout<<"Now error sofar"<<endl;
+	//cout<<"Now error sofar"<<endl;
 	return Energy/steps;
 }
 
