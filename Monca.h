@@ -17,8 +17,8 @@ public:
 	Monca(int N_p, int N, int P);
 	//~Monca();
 	
-	void DoJas(const Polynomial *JAS, Polynomial *ynm);
-	void Build(Polynomial *JAS, Polynomial *ynm, const Cdouble *z);
+	void DoJas(const Polynomial *JAS, Polynomial *&ynm);
+	void Build(Polynomial *JAS, Polynomial *&ynm, const Cdouble *z);
 	Cdouble CF_Wave( Polynomial *tynm, const Cdouble *tz);
 	double Metrop(int steps);
 	double Vee(int n, complex<double> *z);
@@ -50,16 +50,20 @@ Monca::Monca(int N_p, int N, int P)
 	JAS=new Polynomial [n_p];
 	tmpJAS=new Polynomial [n_p];
 }
-void Monca::DoJas(const Polynomial *tJAS, Polynomial *tynm)
+void Monca::DoJas(const Polynomial *tJAS, Polynomial *&tynm)
 {
 	if(tJAS==NULL)
 	{
 		cout<<"Void Jastrow."<<endl;
 		return;
 	}
-	
 	if(tynm!=NULL)
 	{
+		delete []tynm;
+		tynm=new Polynomial[n_p*n_p];
+	}
+	
+	
 	for(int i=0;i<n_p*n_p;i++)
 	{
 		tynm[i].Clear0();
@@ -89,10 +93,10 @@ void Monca::DoJas(const Polynomial *tJAS, Polynomial *tynm)
 			//cout<<endl<<"t="<<t<<"  ynm("<<l<<","<<m<<")J"<<j<<"="<<ynm[i*n_p+j]<<endl;
 		}
 	}
-	}
+	
 }
 
-void Monca::Build(Polynomial *tJAS, Polynomial *tynm, const Cdouble *tz)	//This gives single CF_wave_function.
+void Monca::Build(Polynomial *tJAS, Polynomial *&tynm, const Cdouble *tz)	//This gives single CF_wave_function.
 {
 	//JAS=new Polynomial[n_p];
 	//ynm=new Polynomial[n_p];
@@ -156,10 +160,10 @@ double Monca::Metrop(int steps)
 		
 		Build(JAS, ynm, z);
 		Build(tmpJAS, tmpynm, r);
-		cout<<RAND_MAX<<" Step:"<<st<<":: "<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm,r))<<endl;
+		///cout<<RAND_MAX<<" Step:"<<st<<":: "<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm,r))<<endl;
 		if(norm(CF_Wave(tmpynm, r)/CF_Wave(ynm, z))>(double(rand())/double(RAND_MAX))&&norm(r[st%n_p])<RN*RN)
 		{	
-			cout<<"accept:"<<st<<endl;
+			///cout<<"accept:"<<st<<endl;
 			
 			z[st%n_p]=r[st%n_p];
 			
@@ -167,7 +171,7 @@ double Monca::Metrop(int steps)
 		}
 		else
 		{
-			cout<<"refuse:"<<st<<endl;
+			///cout<<"refuse:"<<st<<endl;
 		}
 		
 		Energy=Energy+Vee(n_p, z);

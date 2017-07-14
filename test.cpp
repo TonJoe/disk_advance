@@ -21,7 +21,7 @@ void test()
 int main()
 {
 	//test();
-	Monca experiment(4,1,1);
-	cout<<experiment.Metrop(100000)<<endl;
+	Monca experiment(6,3,1);
+	cout<<experiment.Metrop(500000)<<endl;
 	system("Pause");
 }
