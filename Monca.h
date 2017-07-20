@@ -71,6 +71,7 @@ void Monca::DoJas(const Polynomial *tJAS, Polynomial *&tynm)
 	}
 	int l=0,m=0;
 	int i,j;
+	Polynomial tmp,tmpd;
 	for(i=0;i<n_p;i++)	//i'th row
 	{
 		for(j=0;j<n_p;j++)	//j'th column
@@ -78,7 +79,7 @@ void Monca::DoJas(const Polynomial *tJAS, Polynomial *&tynm)
 			l=i/(n_p/n);
 			m=i%(n_p/n)-l;
 			/**Now start calculating wave function**/
-			
+			/**
 			for(int k=0;k<=n;k++)
 			{
 				double c;
@@ -89,7 +90,16 @@ void Monca::DoJas(const Polynomial *tJAS, Polynomial *&tynm)
 				tmp.NewTerm(coef,k+m);
 				tynm[i*n_p+j]=tynm[i*n_p+j]+(tmp*tJAS[j]).Deriv(k);
 				
-			}
+			}**/
+			double c;
+			c=pow(-1.,l)/Fact(l);
+			Cdouble coef(c,0.);
+			
+			tmp.Clear0();
+			tmpd.Clear0();
+			tmp.NewTerm(coef,m);
+			tmpd=tJAS[j];			
+			tynm[i*n_p+j]=tmp*tmpd.Deriv(l);
 			//cout<<endl<<"t="<<t<<"  ynm("<<l<<","<<m<<")J"<<j<<"="<<ynm[i*n_p+j]<<endl;
 		}
 	}
@@ -111,6 +121,7 @@ void Monca::Build(Polynomial *tJAS, Polynomial *&tynm, const Cdouble *tz)	//This
 Cdouble Monca::CF_Wave( Polynomial *tynm, const Cdouble *tz)	//Calculate determinant of wave-funtion: many-body function
 {
 	Cdouble *matrix;
+	
 	matrix=new Cdouble[n_p*n_p];
 	double sum=0.;
 	for(int i=0;i<n_p;i++)	// i'th function
@@ -134,10 +145,11 @@ Cdouble Monca::CF_Wave( Polynomial *tynm, const Cdouble *tz)	//Calculate determi
 
 double Monca::Metrop(int steps)
 {
+	
 	cout<<"The current program only applies for the case p=1, since I didn't make the exponent of Jastrow."<<endl;
 	double Energy=0;
-	
-	srand (time(NULL));
+	double count=0;
+	srand48 (time(NULL));
 	for(int i=0;i<n_p;i++)
 	{
 		z[i]=polar((double)(double(rand())/double(RAND_MAX))*RN,(double)(double(rand())/double(RAND_MAX))*2.*PI);
@@ -156,28 +168,36 @@ double Monca::Metrop(int steps)
 			r[j]=z[j]; 
 		}	
 		
-		r[st%n_p]=r[st%n_p]+polar((double(rand())/double(RAND_MAX))*0.15*RN,(double(rand())/double(RAND_MAX))*2.*PI);
+		//r[st%n_p]=r[st%n_p]+polar((double(rand())/double(RAND_MAX))*0.19*RN,(double(rand())/double(RAND_MAX))*2.*PI);
+		r[st%n_p]=r[st%n_p]+polar(0.1*RN,drand48()*2.*PI);
 		
 		Build(JAS, ynm, z);
 		Build(tmpJAS, tmpynm, r);
-		///cout<<RAND_MAX<<" Step:"<<st<<":: "<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm,r))<<endl;
-		if(norm(CF_Wave(tmpynm, r)/CF_Wave(ynm, z))>(double(rand())/double(RAND_MAX))&&norm(r[st%n_p])<RN*RN)
+		//cout<<RAND_MAX<<" Step:"<<st<<":: "<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm,r))<<endl;
+		if(norm(CF_Wave(tmpynm, r)/CF_Wave(ynm, z))>drand48()&&norm(r[st%n_p])<RN*RN)
 		{	
-			///cout<<"accept:"<<st<<endl;
+			count=count+1.0;
+			//cout<<"accept:"<<count/(double)st<<endl;
 			
 			z[st%n_p]=r[st%n_p];
 			
 			//Build(JAS, ynm, z);
 		}
-		else
-		{
-			///cout<<"refuse:"<<st<<endl;
+	
+		if(st>20000)
+		{	
+			Energy=Energy+Vee(n_p, z);
+			if(st%500==0)
+				cout<<st<<":: "<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm,r))<<endl;	
+			if(st%10000==0)
+			{
+				cout<<st<<":"<<count/10000<<endl;
+				count=0;
+			}
 		}
-		
-		Energy=Energy+Vee(n_p, z);
 	}
 	//cout<<"Now error sofar"<<endl;
-	return Energy/steps;
+	return Energy/(steps-20000);
 }
 
 
