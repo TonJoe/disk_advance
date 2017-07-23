@@ -20,8 +20,13 @@ void test()
 
 int main()
 {
-	//test();
-	Monca experiment(6,2,1);
-	cout<<experiment.Metrop(500000)<<endl;
-	system("Pause");
+	Monca experiment(6,3,1);
+	qmnumber qm[6];
+	qm[0].n=0; qm[0].m=0;
+	qm[1].n=0; qm[1].m=1;
+	qm[2].n=0; qm[2].m=2;
+	qm[3].n=0; qm[3].m=3;
+	qm[4].n=1; qm[4].m=-1;
+	qm[5].n=1; qm[5].m=0;
+	cout<<"6,3,1   "<<experiment.Metrop(2000000,qm)<<endl;
 }

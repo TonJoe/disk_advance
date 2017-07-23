@@ -3,6 +3,35 @@
 #include<LA1.h>
 #include<det.h>
 double EllipticE(double x);
+Cdouble Rmv()
+{
+	double r=drand48();
+	if(r<0.25)
+	{
+		Cdouble c(1.,1.);
+		return c;
+	}
+	else if(0.25<=r&&r<0.5)
+	{
+		Cdouble c(1.,-1.);
+		return c;
+	}	
+	else if(0.5<=r&&r<0.75)
+	{
+		Cdouble c(-1.,1.);
+		return c;
+	}
+	else
+	{
+		Cdouble c(-1.,-1.);
+		return c;
+	}
+}
+typedef struct
+{
+	int n;
+	int m;
+}qmnumber;
 class Monca
 {
 public:
@@ -17,10 +46,10 @@ public:
 	Monca(int N_p, int N, int P);
 	//~Monca();
 	
-	void DoJas(const Polynomial *JAS, Polynomial *&ynm);
-	void Build(Polynomial *JAS, Polynomial *&ynm, const Cdouble *z);
+	void DoJas(const Polynomial *JAS, Polynomial *&ynm, qmnumber *qm);
+	void Build(Polynomial *JAS, Polynomial *&ynm, const Cdouble *z, qmnumber *qm);
 	Cdouble CF_Wave( Polynomial *tynm, const Cdouble *tz);
-	double Metrop(int steps);
+	double Metrop(int steps, qmnumber *qm);
 	double Vee(int n, complex<double> *z);
 	double Vbb(int n, double niu);
 	double Vbe(int n, double niu, double RN, complex<double> *z);
@@ -50,7 +79,7 @@ Monca::Monca(int N_p, int N, int P)
 	JAS=new Polynomial [n_p];
 	tmpJAS=new Polynomial [n_p];
 }
-void Monca::DoJas(const Polynomial *tJAS, Polynomial *&tynm)
+void Monca::DoJas(const Polynomial *tJAS, Polynomial *&tynm, qmnumber *qm)
 {
 	if(tJAS==NULL)
 	{
@@ -76,8 +105,8 @@ void Monca::DoJas(const Polynomial *tJAS, Polynomial *&tynm)
 	{
 		for(j=0;j<n_p;j++)	//j'th column
 		{
-			l=i/(n_p/n);
-			m=i%(n_p/n)-l;
+			l=qm[i].n;
+			m=qm[i].m;
 			/**Now start calculating wave function**/
 			/**
 			for(int k=0;k<=n;k++)
@@ -97,7 +126,7 @@ void Monca::DoJas(const Polynomial *tJAS, Polynomial *&tynm)
 			
 			tmp.Clear0();
 			tmpd.Clear0();
-			tmp.NewTerm(coef,m);
+			tmp.NewTerm(coef,m+l);
 			tmpd=tJAS[j];			
 			tynm[i*n_p+j]=tmp*tmpd.Deriv(l);
 			//cout<<endl<<"t="<<t<<"  ynm("<<l<<","<<m<<")J"<<j<<"="<<ynm[i*n_p+j]<<endl;
@@ -106,7 +135,7 @@ void Monca::DoJas(const Polynomial *tJAS, Polynomial *&tynm)
 	
 }
 
-void Monca::Build(Polynomial *tJAS, Polynomial *&tynm, const Cdouble *tz)	//This gives single CF_wave_function.
+void Monca::Build(Polynomial *tJAS, Polynomial *&tynm, const Cdouble *tz, qmnumber *qm)	//This gives single CF_wave_function.
 {
 	//JAS=new Polynomial[n_p];
 	//ynm=new Polynomial[n_p];
@@ -115,7 +144,7 @@ void Monca::Build(Polynomial *tJAS, Polynomial *&tynm, const Cdouble *tz)	//This
 		//tJAS[i].Clear1();
 		tJAS[i].Jas(tz,n_p,i); 
 	}
-	DoJas(tJAS, tynm);
+	DoJas(tJAS, tynm, qm);
 }
 
 Cdouble Monca::CF_Wave( Polynomial *tynm, const Cdouble *tz)	//Calculate determinant of wave-funtion: many-body function
@@ -143,12 +172,13 @@ Cdouble Monca::CF_Wave( Polynomial *tynm, const Cdouble *tz)	//Calculate determi
 	return cpxdbl_det0(matrix, n_p)*ep;
 }
 
-double Monca::Metrop(int steps)
+double Monca::Metrop(int steps, qmnumber *qm)
 {
 	
 	cout<<"The current program only applies for the case p=1, since I didn't make the exponent of Jastrow."<<endl;
 	double Energy=0;
 	double count=0;
+	///Cdouble ranmv;
 	srand48 (time(NULL));
 	for(int i=0;i<n_p;i++)
 	{
@@ -168,23 +198,46 @@ double Monca::Metrop(int steps)
 			r[j]=z[j]; 
 		}	
 		
-		//r[st%n_p]=r[st%n_p]+polar((double(rand())/double(RAND_MAX))*0.19*RN,(double(rand())/double(RAND_MAX))*2.*PI);
-		r[st%n_p]=r[st%n_p]+polar(0.1*RN,drand48()*2.*PI);
-		
-		Build(JAS, ynm, z);
-		Build(tmpJAS, tmpynm, r);
+		///r[st%n_p]=r[st%n_p]+polar(0.1*RN,drand48()*2.*PI);
+		for(int i=0;i<n_p;i++)
+		{
+			//ranmv.real=0.02*drand48();
+			//ranmv.imag=0.02*drand48();
+			Cdouble ranmv(0.2*(drand48()-0.5),0.2*(drand48()-0.5));
+			r[i]=r[i]+0.425*Rmv();
+			//r[i]=r[i]+polar(0.013*RN,drand48()*2.*PI);
+		}
+		Build(JAS, ynm, z, qm);
+		Build(tmpJAS, tmpynm, r, qm);
 		//cout<<RAND_MAX<<" Step:"<<st<<":: "<<norm(CF_Wave(ynm, z))<<"  "<<norm(CF_Wave(tmpynm,r))<<endl;
-		if(norm(CF_Wave(tmpynm, r)/CF_Wave(ynm, z))>drand48()&&norm(r[st%n_p])<RN*RN)
+		if(norm(CF_Wave(tmpynm, r)/CF_Wave(ynm, z))>drand48() &&norm(r[st%n_p])<RN*RN)
 		{	
 			count=count+1.0;
 			//cout<<"accept:"<<count/(double)st<<endl;
 			
-			z[st%n_p]=r[st%n_p];
-			
+			//z[st%n_p]=r[st%n_p];
+			for(int i=0;i<n_p;i++)
+		{
+			z[i]=r[i];
+		}
 			//Build(JAS, ynm, z);
 		}
+		/**
+		if(st%10000==0)
+		{
+			for(int i=0;i<n_p;i++)
+			{
+				JAS[i].CleanM();
+				tmpJAS[i].CleanM();
+			}
+			for(int i=0;i<n_p*n_p;i++)
+			{
+				JAS[i].CleanM();
+				tmpJAS[i].CleanM();
+			}
+		}**/
 	
-		if(st>20000)
+		if(st>500000)
 		{	
 			Energy=Energy+Vee(n_p, z);
 			if(st%500==0)
@@ -197,7 +250,7 @@ double Monca::Metrop(int steps)
 		}
 	}
 	//cout<<"Now error sofar"<<endl;
-	return Energy/(steps-20000);
+	return Energy/(steps-500000);
 }
 
 

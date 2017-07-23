@@ -1,4 +1,4 @@
-#define TINYY    1.5e-320
+#define TINYY    1.5e-420
 
 #include<Disk_Math.h>
 
@@ -26,6 +26,7 @@ public:
 	Polynomial operator+(const Polynomial & poly); //Polynomial addition.
 	Polynomial operator*(const Polynomial & poly);
 	
+	//void CleanM();
 	void Clear1();
 	void Clear0();
 	Polynomial Deriv();
@@ -71,6 +72,27 @@ Polynomial::~Polynomial()
 {  
     delete [] termArray;  
 }  
+/**
+void Polynomial::CleanM()
+{
+	int trash=0;
+	for(int i=0;i<capacity;i++)
+	{
+		if(norm(termArray[i].coef)<TINYY)
+		{
+			for(int j=i;j<capacity-1;j++)
+			{
+				termArray[j].coef=termArray[j+1].coef;
+				termArray[j].exp=termArray[j+1].exp;
+			}
+			trash++;
+			capacity--;
+			terms--;
+		}
+	}
+	delete [] termArray+capacity-trash;
+}**/
+
 void Polynomial::Clear1()
 {
 	//if(termArray!=NULL)
@@ -166,6 +188,7 @@ Polynomial Polynomial::Deriv(int n)		//n'th order derivative
 
 void Polynomial::Jas(const Cdouble* z, int length, int i)
 {
+	
 	Clear1();
 	Cdouble coef(1.,0.);
 	for(int n=0;n<length;n++)
@@ -243,7 +266,14 @@ Polynomial Polynomial::operator*(const Polynomial & b)
             int exp = termArray[i].exp + b.termArray[j].exp;  
             c.NewTerm(coef,exp);  
         }  
-    }  
+    }
+	for(int i=0;i<capacity;i++)
+	{
+		if(norm(termArray[i].coef)<TINYY)
+		{
+			termArray[i].exp=0;
+		}
+	}		
     return c;  
 }
 
