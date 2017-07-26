@@ -28,5 +28,5 @@ int main()
 	qm[3].n=0; qm[3].m=3;
 	qm[4].n=1; qm[4].m=-1;
 	qm[5].n=1; qm[5].m=0;
-	cout<<"6,3,1   "<<experiment.Metrop(2000000,qm)<<endl;
+	cout<<"6,3,1   "<<experiment.Metrop(5000000,qm)<<endl;
 }
